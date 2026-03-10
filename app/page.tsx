@@ -1,3 +1,6 @@
+import { LandingPageViewTracker } from "@/components/LandingPageViewTracker";
+import { TrackEventLink } from "@/components/TrackEventLink";
+
 const steps = [
   {
     title: "Describe",
@@ -65,12 +68,6 @@ const faqs = [
 
 const heroSignals = ["Deterministic engine", "BPMN validator", "Guided workflow"];
 
-const surfaceCardClass =
-  "rounded-2xl border border-zinc-200/80 bg-white/75 backdrop-blur-sm shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition duration-200 ease-out motion-reduce:transition-none";
-
-const interactiveCardClass =
-  "hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)] motion-reduce:hover:translate-y-0";
-
 const heroSectionSpacingClass = "py-10 sm:py-12 lg:py-14";
 const panelSectionSpacingClass = "py-6 sm:py-8";
 
@@ -118,6 +115,7 @@ function SectionHeading({
 export default function Home() {
   return (
     <div className="space-y-0">
+      <LandingPageViewTracker />
       <section className={heroSectionSpacingClass}>
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-white/70 via-white/55 to-white/45 p-6 ring-1 ring-black/5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] backdrop-blur-sm sm:p-10 lg:p-14">
           <div
@@ -146,22 +144,41 @@ export default function Home() {
                 </p>
               </div>
 
-    <div className="mb-8 space-y-3 sm:mb-10">
+              <div className="mb-8 space-y-3 sm:mb-10">
                 <div className="flex flex-col gap-3 sm:flex-row">
-                  <a
+                  <TrackEventLink
                     href="https://app.bpmngen.com"
+                    events={[
+                      { eventName: "landing_try_demo_click" },
+                      { eventName: "demo_opened" },
+                      { eventName: "link_click", path: "/?cta=hero_try_app" },
+                    ]}
                     className="inline-flex items-center justify-center rounded-full border border-zinc-900 bg-zinc-900 px-5 py-3 text-sm font-medium text-white shadow-[0_6px_16px_rgba(24,24,27,0.12)] transition hover:bg-zinc-800"
                   >
                     Try the App
-                  </a>
-                  <a
+                  </TrackEventLink>
+                  <TrackEventLink
                     href="#pricing"
+                    eventNames={["link_click"]}
+                    path="/?cta=hero_see_pricing"
                     className="inline-flex items-center justify-center rounded-full border border-zinc-300 bg-white/80 px-5 py-3 text-sm font-medium text-zinc-700 transition hover:border-zinc-400 hover:text-zinc-900"
                   >
                     See pricing
-                  </a>
+                  </TrackEventLink>
                 </div>
-                <p className="text-xs text-zinc-600">No BPMN knowledge required.</p>
+                <div className="space-y-1">
+                  <p className="text-xs text-zinc-600">No BPMN knowledge required.</p>
+                  <TrackEventLink
+                    href="https://app.bpmngen.com/signup"
+                    events={[
+                      { eventName: "demo_create_account_click" },
+                      { eventName: "link_click", path: "/?cta=hero_create_account" },
+                    ]}
+                    className="inline-flex text-xs font-medium text-zinc-700 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-900"
+                  >
+                    Create account
+                  </TrackEventLink>
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-x-5 gap-y-2 pt-1">
@@ -338,8 +355,15 @@ export default function Home() {
                   ))}
                 </ul>
 
-                <a
+                <TrackEventLink
                   href="https://app.bpmngen.com"
+                  events={[
+                    { eventName: "demo_opened" },
+                    {
+                      eventName: "link_click",
+                      path: `/?cta=pricing_start_free&plan=${tier.name.toLowerCase()}`,
+                    },
+                  ]}
                   className={`mt-6 inline-flex w-full items-center justify-center rounded-full border px-4 py-2.5 text-sm font-medium transition ${
                     tier.featured
                       ? "border-white bg-white text-zinc-900 hover:bg-white/90"
@@ -347,7 +371,7 @@ export default function Home() {
                   }`}
                 >
                   Start free
-                </a>
+                </TrackEventLink>
                 <p className="mt-2 text-center text-sm text-white/60">No credit card required.</p>
               </article>
             ))}
@@ -391,12 +415,16 @@ export default function Home() {
                 Try BPMN.GEN and turn process stories into valid BPMN faster.
               </h2>
             </div>
-            <a
+            <TrackEventLink
               href="https://app.bpmngen.com"
+              events={[
+                { eventName: "demo_opened" },
+                { eventName: "link_click", path: "/?cta=final_try_app" },
+              ]}
               className="inline-flex items-center justify-center rounded-full border border-zinc-900 bg-zinc-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-zinc-800"
             >
               Try the App
-            </a>
+            </TrackEventLink>
           </div>
         </div>
       </section>
