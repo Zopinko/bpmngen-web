@@ -25,8 +25,9 @@ export default async function AnalyticsAdminPage() {
   const summaryCards = [
     { label: "Landing visits", value: summary.landingVisits.toString() },
     { label: "Demo opens", value: summary.demoOpens.toString() },
-    { label: "Paid clicked", value: summary.paidClicked.toString() },
     { label: "CTA clicks", value: summary.ctaClicks.toString() },
+    { label: "Paid clicked", value: summary.paidClicked.toString() },
+    { label: "Signup started", value: summary.signupStarted.toString() },
     { label: "Unique sessions", value: summary.uniqueSessions.toString() },
     { label: "Demo conversion", value: `${demoConversion.toFixed(1)}%` },
   ];
@@ -34,7 +35,7 @@ export default async function AnalyticsAdminPage() {
   return (
     <section className="space-y-4">
       <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Analytics events</h1>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-7">
         {summaryCards.map((card) => (
           <article key={card.label} className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
             <p className="text-xs font-medium text-zinc-500">{card.label}</p>

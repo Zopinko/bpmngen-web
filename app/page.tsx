@@ -172,7 +172,8 @@ export default function Home() {
                     href="https://app.bpmngen.com/signup"
                     events={[
                       { eventName: "demo_create_account_click" },
-                      { eventName: "link_click", path: "/?cta=hero_create_account" },
+                      { eventName: "signup_started", path: "/?cta=demo_create_account" },
+                      { eventName: "link_click", path: "/?cta=demo_create_account" },
                     ]}
                     className="inline-flex text-xs font-medium text-zinc-700 underline decoration-zinc-400 underline-offset-4 transition hover:text-zinc-900"
                   >
@@ -356,12 +357,16 @@ export default function Home() {
                 </ul>
 
                 <TrackEventLink
-                  href="https://app.bpmngen.com"
+                  href="https://app.bpmngen.com/signup"
                   events={[
                     { eventName: "paid_clicked" },
                     {
+                      eventName: "signup_started",
+                      path: `/?cta=pricing_signup&plan=${tier.name.toLowerCase()}`,
+                    },
+                    {
                       eventName: "link_click",
-                      path: `/?cta=pricing_start_free&plan=${tier.name.toLowerCase()}`,
+                      path: `/?cta=pricing_signup&plan=${tier.name.toLowerCase()}`,
                     },
                   ]}
                   className={`mt-6 inline-flex w-full items-center justify-center rounded-full border px-4 py-2.5 text-sm font-medium transition ${

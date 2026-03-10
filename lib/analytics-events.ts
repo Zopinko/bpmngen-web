@@ -3,6 +3,7 @@ export const ALLOWED_ANALYTICS_EVENTS = [
   "landing_try_demo_click",
   "demo_opened",
   "paid_clicked",
+  "signup_started",
   "demo_create_account_click",
   "link_click",
 ] as const;
