@@ -358,7 +358,7 @@ export default function Home() {
                 <TrackEventLink
                   href="https://app.bpmngen.com"
                   events={[
-                    { eventName: "demo_opened" },
+                    { eventName: "paid_clicked" },
                     {
                       eventName: "link_click",
                       path: `/?cta=pricing_start_free&plan=${tier.name.toLowerCase()}`,

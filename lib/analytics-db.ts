@@ -82,6 +82,7 @@ export type AnalyticsPathCountRow = {
 export type AnalyticsSummaryStats = {
   landingVisits: number;
   demoOpens: number;
+  paidClicked: number;
   ctaClicks: number;
   uniqueSessions: number;
 };
@@ -149,6 +150,7 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
         SELECT
           COALESCE(SUM(CASE WHEN event_name = 'landing_page_view' THEN 1 ELSE 0 END), 0) AS landingVisits,
           COALESCE(SUM(CASE WHEN event_name = 'demo_opened' THEN 1 ELSE 0 END), 0) AS demoOpens,
+          COALESCE(SUM(CASE WHEN event_name = 'paid_clicked' THEN 1 ELSE 0 END), 0) AS paidClicked,
           COALESCE(SUM(CASE WHEN event_name = 'link_click' THEN 1 ELSE 0 END), 0) AS ctaClicks,
           COALESCE(COUNT(DISTINCT session_id), 0) AS uniqueSessions
         FROM analytics_events
@@ -158,6 +160,7 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
     | {
         landingVisits?: unknown;
         demoOpens?: unknown;
+        paidClicked?: unknown;
         ctaClicks?: unknown;
         uniqueSessions?: unknown;
       }
@@ -166,6 +169,7 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
   return {
     landingVisits: Number(row?.landingVisits ?? 0),
     demoOpens: Number(row?.demoOpens ?? 0),
+    paidClicked: Number(row?.paidClicked ?? 0),
     ctaClicks: Number(row?.ctaClicks ?? 0),
     uniqueSessions: Number(row?.uniqueSessions ?? 0),
   };
