@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { type ComponentProps } from "react";
-import { trackEvent } from "@/lib/analytics-client";
+import { type ComponentProps, useEffect, useRef } from "react";
+import { buildSignupUrlWithSid, trackEvent } from "@/lib/analytics-client";
 import { type AnalyticsEventName } from "@/lib/analytics-events";
 
 type TrackEventConfig = {
@@ -13,6 +13,7 @@ type TrackEventConfig = {
 type TrackEventLinkProps = Omit<ComponentProps<typeof Link>, "onClick"> & {
   eventNames?: AnalyticsEventName[];
   events?: TrackEventConfig[];
+  appendSessionIdToSignup?: boolean;
   path?: string;
   onClick?: ComponentProps<typeof Link>["onClick"];
 };
@@ -20,12 +21,23 @@ type TrackEventLinkProps = Omit<ComponentProps<typeof Link>, "onClick"> & {
 export function TrackEventLink({
   eventNames = [],
   events = [],
+  appendSessionIdToSignup = false,
   path,
   onClick,
   ...props
 }: TrackEventLinkProps) {
+  const linkRef = useRef<HTMLAnchorElement | null>(null);
+
+  useEffect(() => {
+    if (!appendSessionIdToSignup || typeof props.href !== "string" || !linkRef.current) {
+      return;
+    }
+    linkRef.current.href = buildSignupUrlWithSid(props.href);
+  }, [appendSessionIdToSignup, props.href]);
+
   return (
     <Link
+      ref={linkRef}
       {...props}
       onClick={(event) => {
         onClick?.(event);

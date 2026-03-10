@@ -170,6 +170,7 @@ export default function Home() {
                   <p className="text-xs text-zinc-600">No BPMN knowledge required.</p>
                   <TrackEventLink
                     href="https://app.bpmngen.com/signup"
+                    appendSessionIdToSignup
                     events={[
                       { eventName: "demo_create_account_click" },
                       { eventName: "signup_started", path: "/?cta=demo_create_account" },
@@ -358,6 +359,7 @@ export default function Home() {
 
                 <TrackEventLink
                   href="https://app.bpmngen.com/signup"
+                  appendSessionIdToSignup
                   events={[
                     { eventName: "paid_clicked" },
                     {

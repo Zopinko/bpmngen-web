@@ -4,17 +4,30 @@ import { type AnalyticsEventName } from "@/lib/analytics-events";
 
 const SESSION_STORAGE_KEY = "bpmngen_session_id";
 
-function getOrCreateSessionId(): string | undefined {
+function getStoredSessionId(): string | undefined {
   if (typeof window === "undefined") {
     return undefined;
   }
 
   try {
     const stored = window.localStorage.getItem(SESSION_STORAGE_KEY);
-    if (stored) {
-      return stored;
-    }
+    return stored || undefined;
+  } catch {
+    return undefined;
+  }
+}
 
+function getOrCreateSessionId(): string | undefined {
+  const stored = getStoredSessionId();
+  if (stored) {
+    return stored;
+  }
+
+  if (typeof window === "undefined") {
+    return undefined;
+  }
+
+  try {
     const generated =
       typeof window.crypto?.randomUUID === "function"
         ? window.crypto.randomUUID()
@@ -24,6 +37,23 @@ function getOrCreateSessionId(): string | undefined {
     return generated;
   } catch {
     return undefined;
+  }
+}
+
+export function buildSignupUrlWithSid(signupUrl: string): string {
+  const sessionId = getStoredSessionId();
+  if (!sessionId) {
+    return signupUrl;
+  }
+
+  try {
+    const url = new URL(signupUrl, window.location.origin);
+    if (!url.searchParams.has("sid")) {
+      url.searchParams.set("sid", sessionId);
+    }
+    return url.toString();
+  } catch {
+    return signupUrl;
   }
 }
 

@@ -85,6 +85,7 @@ export type AnalyticsSummaryStats = {
   ctaClicks: number;
   paidClicked: number;
   signupStarted: number;
+  signupCompleted: number;
   uniqueSessions: number;
 };
 
@@ -160,6 +161,7 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
           COALESCE(SUM(CASE WHEN event_name = 'link_click' THEN 1 ELSE 0 END), 0) AS ctaClicks,
           COALESCE(SUM(CASE WHEN event_name = 'paid_clicked' THEN 1 ELSE 0 END), 0) AS paidClicked,
           COALESCE(SUM(CASE WHEN event_name = 'signup_started' THEN 1 ELSE 0 END), 0) AS signupStarted,
+          COALESCE(SUM(CASE WHEN event_name = 'signup_completed' THEN 1 ELSE 0 END), 0) AS signupCompleted,
           COALESCE(COUNT(DISTINCT session_id), 0) AS uniqueSessions
         FROM analytics_events
       `,
@@ -171,6 +173,7 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
         ctaClicks?: unknown;
         paidClicked?: unknown;
         signupStarted?: unknown;
+        signupCompleted?: unknown;
         uniqueSessions?: unknown;
       }
     | undefined;
@@ -181,6 +184,7 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
     ctaClicks: Number(row?.ctaClicks ?? 0),
     paidClicked: Number(row?.paidClicked ?? 0),
     signupStarted: Number(row?.signupStarted ?? 0),
+    signupCompleted: Number(row?.signupCompleted ?? 0),
     uniqueSessions: Number(row?.uniqueSessions ?? 0),
   };
 }
