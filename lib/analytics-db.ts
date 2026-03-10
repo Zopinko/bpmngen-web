@@ -87,6 +87,12 @@ export type AnalyticsSummaryStats = {
   uniqueSessions: number;
 };
 
+export type AnalyticsSessionFlowRow = {
+  session_id: string;
+  flow: string;
+  started_at: string;
+};
+
 export function insertAnalyticsEvent(params: {
   eventName: AnalyticsEventName;
   pathValue: string;
@@ -173,4 +179,31 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
     ctaClicks: Number(row?.ctaClicks ?? 0),
     uniqueSessions: Number(row?.uniqueSessions ?? 0),
   };
+}
+
+export function listRecentSessionFlows(limit = 20): AnalyticsSessionFlowRow[] {
+  const db = getDb();
+  return db
+    .prepare(
+      `
+        SELECT
+          sessions.session_id AS session_id,
+          (
+            SELECT GROUP_CONCAT(ordered.event_name, ' → ')
+            FROM (
+              SELECT event_name
+              FROM analytics_events
+              WHERE session_id = sessions.session_id
+              ORDER BY created_at ASC, id ASC
+            ) AS ordered
+          ) AS flow,
+          MIN(sessions.created_at) AS started_at
+        FROM analytics_events AS sessions
+        WHERE sessions.session_id IS NOT NULL AND sessions.session_id <> ''
+        GROUP BY sessions.session_id
+        ORDER BY started_at DESC
+        LIMIT ?
+      `,
+    )
+    .all(limit) as AnalyticsSessionFlowRow[];
 }
