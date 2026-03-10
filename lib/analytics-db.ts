@@ -3,8 +3,25 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { type AnalyticsEventName } from "@/lib/analytics-events";
 
-const dataDir = path.join(process.cwd(), "data");
-const dbPath = path.join(dataDir, "analytics.sqlite");
+function resolveAnalyticsDbPath(): string {
+  const configuredPath = process.env.ANALYTICS_DB_PATH?.trim();
+  if (configuredPath) {
+    return path.isAbsolute(configuredPath)
+      ? configuredPath
+      : path.resolve(process.cwd(), configuredPath);
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    return path.join(process.cwd(), "data", "analytics.sqlite");
+  }
+
+  throw new Error(
+    "ANALYTICS_DB_PATH is required in production. Set it to a persistent disk path (for example /var/data/analytics.db).",
+  );
+}
+
+const dbPath = resolveAnalyticsDbPath();
+const dataDir = path.dirname(dbPath);
 
 type DatabaseSyncLike = {
   exec(sql: string): void;
@@ -22,6 +39,7 @@ function getDb(): DatabaseSyncLike {
   const globalForDb = globalThis as AnalyticsDatabaseGlobal;
   if (!globalForDb.__analyticsDb) {
     mkdirSync(dataDir, { recursive: true });
+    console.info(`[analytics] using db path: ${dbPath}`);
     globalForDb.__analyticsDb = new DatabaseSync(dbPath);
     globalForDb.__analyticsDb.exec(`
       CREATE TABLE IF NOT EXISTS analytics_events (
