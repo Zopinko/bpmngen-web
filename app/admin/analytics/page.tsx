@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   getAnalyticsSummaryStats,
   listAnalyticsEvents,
@@ -6,25 +7,14 @@ import {
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-type AnalyticsAdminPageProps = {
-  searchParams?: Promise<{ key?: string }>;
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
-export default async function AnalyticsAdminPage({ searchParams }: AnalyticsAdminPageProps) {
-  const params = (await searchParams) ?? {};
-  const requiredKey = process.env.ANALYTICS_ADMIN_KEY;
-  const providedKey = params.key;
-  const isAllowed = !requiredKey || providedKey === requiredKey;
-
-  if (!isAllowed) {
-    return (
-      <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-        Unauthorized. Provide the correct <code>key</code> query parameter.
-      </div>
-    );
-  }
-
+export default async function AnalyticsAdminPage() {
   const events = listAnalyticsEvents();
   const linkClickCounts = listAnalyticsPathCountsForEvent("link_click");
   const summary = getAnalyticsSummaryStats();
