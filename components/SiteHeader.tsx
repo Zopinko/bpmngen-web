@@ -31,7 +31,7 @@ export function SiteHeader() {
           </nav>
 
           <TrackEventLink
-            href="https://app.bpmngen.com"
+            href="https://app.bpmngen.com/demo"
             events={[
               { eventName: "demo_opened" },
               { eventName: "link_click", path: "/?cta=header_try_app" },

@@ -147,7 +147,7 @@ export default function Home() {
               <div className="mb-8 space-y-3 sm:mb-10">
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <TrackEventLink
-                    href="https://app.bpmngen.com"
+                    href="https://app.bpmngen.com/demo"
                     events={[
                       { eventName: "landing_try_demo_click" },
                       { eventName: "demo_opened" },
@@ -416,7 +416,7 @@ export default function Home() {
               </h2>
             </div>
             <TrackEventLink
-              href="https://app.bpmngen.com"
+              href="https://app.bpmngen.com/demo"
               events={[
                 { eventName: "demo_opened" },
                 { eventName: "link_click", path: "/?cta=final_try_app" },
