@@ -1,4 +1,8 @@
-import { listAnalyticsEvents, listAnalyticsPathCountsForEvent } from "@/lib/analytics-db";
+import {
+  getAnalyticsSummaryStats,
+  listAnalyticsEvents,
+  listAnalyticsPathCountsForEvent,
+} from "@/lib/analytics-db";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -23,10 +27,28 @@ export default async function AnalyticsAdminPage({ searchParams }: AnalyticsAdmi
 
   const events = listAnalyticsEvents();
   const linkClickCounts = listAnalyticsPathCountsForEvent("link_click");
+  const summary = getAnalyticsSummaryStats();
+  const demoConversion =
+    summary.landingVisits > 0 ? (summary.demoOpens / summary.landingVisits) * 100 : 0;
+  const summaryCards = [
+    { label: "Landing visits", value: summary.landingVisits.toString() },
+    { label: "Demo opens", value: summary.demoOpens.toString() },
+    { label: "CTA clicks", value: summary.ctaClicks.toString() },
+    { label: "Unique sessions", value: summary.uniqueSessions.toString() },
+    { label: "Demo conversion", value: `${demoConversion.toFixed(1)}%` },
+  ];
 
   return (
     <section className="space-y-4">
       <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Analytics events</h1>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        {summaryCards.map((card) => (
+          <article key={card.label} className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
+            <p className="text-xs font-medium text-zinc-500">{card.label}</p>
+            <p className="mt-1 text-xl font-semibold tracking-tight text-zinc-900">{card.value}</p>
+          </article>
+        ))}
+      </div>
       <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
         <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
           <thead className="bg-zinc-50 text-zinc-700">

@@ -61,6 +61,13 @@ export type AnalyticsPathCountRow = {
   total: number;
 };
 
+export type AnalyticsSummaryStats = {
+  landingVisits: number;
+  demoOpens: number;
+  ctaClicks: number;
+  uniqueSessions: number;
+};
+
 export function insertAnalyticsEvent(params: {
   eventName: AnalyticsEventName;
   pathValue: string;
@@ -114,4 +121,34 @@ export function listAnalyticsPathCountsForEvent(
       `,
     )
     .all(eventName, limit) as AnalyticsPathCountRow[];
+}
+
+export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
+  const db = getDb();
+  const row = db
+    .prepare(
+      `
+        SELECT
+          COALESCE(SUM(CASE WHEN event_name = 'landing_page_view' THEN 1 ELSE 0 END), 0) AS landingVisits,
+          COALESCE(SUM(CASE WHEN event_name = 'demo_opened' THEN 1 ELSE 0 END), 0) AS demoOpens,
+          COALESCE(SUM(CASE WHEN event_name = 'link_click' THEN 1 ELSE 0 END), 0) AS ctaClicks,
+          COALESCE(COUNT(DISTINCT session_id), 0) AS uniqueSessions
+        FROM analytics_events
+      `,
+    )
+    .all()[0] as
+    | {
+        landingVisits?: unknown;
+        demoOpens?: unknown;
+        ctaClicks?: unknown;
+        uniqueSessions?: unknown;
+      }
+    | undefined;
+
+  return {
+    landingVisits: Number(row?.landingVisits ?? 0),
+    demoOpens: Number(row?.demoOpens ?? 0),
+    ctaClicks: Number(row?.ctaClicks ?? 0),
+    uniqueSessions: Number(row?.uniqueSessions ?? 0),
+  };
 }
