@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import {
   getAnalyticsSummaryStats,
   listAnalyticsEvents,
   listAnalyticsPathCountsForEvent,
   listRecentSessionFlows,
+  listTrafficSourceCounts,
 } from "@/lib/analytics-db";
 
 export const dynamic = "force-dynamic";
@@ -15,126 +16,278 @@ export const metadata: Metadata = {
   },
 };
 
+const FLOW_SEPARATOR_REGEX = /\s*(?:->|→|â†’)\s*/g;
+
+function formatDateTime(value: string): string {
+  if (!value) return "-";
+  const normalized = value.includes("T") ? value : `${value.replace(" ", "T")}Z`;
+  const parsed = new Date(normalized);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat("sk-SK", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(parsed);
+}
+
+function formatEventLabel(eventName: string): string {
+  const labels: Record<string, string> = {
+    landing_page_view: "Landing view",
+    landing_try_demo_click: "Try demo click",
+    demo_opened: "Demo opened",
+    demo_create_account_click: "Create account click",
+    paid_clicked: "Paid clicked",
+    signup_started: "Signup started",
+    signup_completed: "Signup completed",
+    link_click: "Link click",
+  };
+  return labels[eventName] ?? eventName;
+}
+
+function sourceLabel(source: string): string {
+  const labels: Record<string, string> = {
+    direct: "Direct",
+    google: "Google",
+    linkedin: "LinkedIn",
+    reddit: "Reddit",
+    other: "Other",
+  };
+  return labels[source] ?? source;
+}
+
 export default async function AnalyticsAdminPage() {
   const events = listAnalyticsEvents();
   const linkClickCounts = listAnalyticsPathCountsForEvent("link_click");
   const recentSessionFlows = listRecentSessionFlows(20);
+  const sourceCounts = listTrafficSourceCounts(8);
   const summary = getAnalyticsSummaryStats();
-  const demoConversion =
-    summary.landingVisits > 0 ? (summary.demoOpens / summary.landingVisits) * 100 : 0;
-  const summaryCards = [
+
+  const demoConversion = summary.landingVisits > 0 ? (summary.demoOpens / summary.landingVisits) * 100 : 0;
+  const signupCompletionRate = summary.signupStarted > 0 ? (summary.signupCompleted / summary.signupStarted) * 100 : 0;
+
+  const primaryKpis = [
+    { label: "Today visitors", value: summary.todayVisitors.toString() },
+    { label: "New visitors", value: summary.newVisitors.toString() },
+    { label: "Returning visitors", value: summary.returningVisitors.toString() },
+    { label: "CTA clicks", value: summary.ctaClicks.toString() },
+  ];
+
+  const secondaryKpis = [
+    { label: "Unique sessions", value: summary.uniqueSessions.toString() },
+    { label: "Unique visitors", value: summary.uniqueVisitors.toString() },
+  ];
+
+  const funnelRows = [
     { label: "Landing visits", value: summary.landingVisits.toString() },
     { label: "Demo opens", value: summary.demoOpens.toString() },
-    { label: "CTA clicks", value: summary.ctaClicks.toString() },
-    { label: "Paid clicked", value: summary.paidClicked.toString() },
     { label: "Signup started", value: summary.signupStarted.toString() },
     { label: "Signup completed", value: summary.signupCompleted.toString() },
-    { label: "Unique sessions", value: summary.uniqueSessions.toString() },
     { label: "Demo conversion", value: `${demoConversion.toFixed(1)}%` },
+    { label: "Signup completion", value: `${signupCompletionRate.toFixed(1)}%` },
   ];
 
   return (
-    <section className="space-y-4">
-      <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">Analytics events</h1>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-8">
-        {summaryCards.map((card) => (
-          <article key={card.label} className="rounded-xl border border-zinc-200 bg-white px-4 py-3">
-            <p className="text-xs font-medium text-zinc-500">{card.label}</p>
-            <p className="mt-1 text-xl font-semibold tracking-tight text-zinc-900">{card.value}</p>
-          </article>
-        ))}
-      </div>
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
-        <div className="border-b border-zinc-200 bg-zinc-50 px-4 py-3">
-          <h2 className="text-sm font-medium text-zinc-700">Recent User Flows</h2>
+    <section className="space-y-5">
+      <header className="rounded-xl border border-zinc-200 bg-white px-5 py-4">
+        <h1 className="text-xl font-semibold tracking-tight text-zinc-900">Web analytics overview</h1>
+        <p className="mt-0.5 text-sm text-zinc-600">Quick founder snapshot of traffic, conversion, and latest behavior.</p>
+      </header>
+
+      <div className="rounded-xl border border-zinc-200 bg-white p-4">
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          {primaryKpis.map((card) => (
+            <article key={card.label} className="rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2.5">
+              <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">{card.label}</p>
+              <p className="mt-1 text-2xl font-semibold tracking-tight text-zinc-900">{card.value}</p>
+            </article>
+          ))}
         </div>
-        <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
-          <thead className="bg-zinc-50 text-zinc-700">
-            <tr>
-              <th className="px-4 py-3 font-medium">session</th>
-              <th className="px-4 py-3 font-medium">flow</th>
-              <th className="px-4 py-3 font-medium">started_at</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100 text-zinc-800">
-            {recentSessionFlows.length === 0 ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-zinc-200 pt-3">
+          {secondaryKpis.map((metric) => (
+            <div
+              key={metric.label}
+              className="inline-flex items-center gap-2 rounded-md border border-zinc-200 bg-white px-2.5 py-1.5 text-xs"
+            >
+              <span className="text-zinc-500">{metric.label}</span>
+              <span className="font-semibold text-zinc-900">{metric.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-zinc-200 bg-white p-4">
+        <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-600">Funnel / performance</h2>
+        <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+          {funnelRows.map((row) => (
+            <div key={row.label} className="flex items-center justify-between rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2">
+              <span className="text-xs text-zinc-600">{row.label}</span>
+              <span className="text-sm font-semibold text-zinc-900">{row.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-2">
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+          <div className="border-b border-zinc-200 bg-zinc-50 px-3 py-2.5">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-600">Acquisition sources</h2>
+          </div>
+          <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
+            <thead className="bg-zinc-50 text-zinc-700">
               <tr>
-                <td className="px-4 py-3 text-zinc-500" colSpan={3}>
-                  No session flows yet.
-                </td>
+                <th className="px-3 py-2 font-medium">Source</th>
+                <th className="px-3 py-2 font-medium">Visitors</th>
               </tr>
-            ) : (
-              recentSessionFlows.map((sessionFlow) => (
-                <tr key={sessionFlow.session_id}>
-                  <td className="whitespace-nowrap px-4 py-3 font-mono text-xs">
-                    {sessionFlow.session_id.length > 8
-                      ? `${sessionFlow.session_id.slice(0, 8)}...`
-                      : sessionFlow.session_id}
+            </thead>
+            <tbody className="divide-y divide-zinc-100 text-zinc-800">
+              {sourceCounts.length === 0 ? (
+                <tr>
+                  <td className="px-3 py-2 text-zinc-500" colSpan={2}>
+                    No source data yet.
                   </td>
-                  <td className="px-4 py-3">{sessionFlow.flow}</td>
-                  <td className="whitespace-nowrap px-4 py-3">{sessionFlow.started_at}</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
-        <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
-          <thead className="bg-zinc-50 text-zinc-700">
-            <tr>
-              <th className="px-4 py-3 font-medium">link target (path)</th>
-              <th className="px-4 py-3 font-medium">clicks</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100 text-zinc-800">
-            {linkClickCounts.length === 0 ? (
+              ) : (
+                sourceCounts.map((row) => (
+                  <tr key={row.source}>
+                    <td className="px-3 py-2 font-medium">{sourceLabel(row.source)}</td>
+                    <td className="whitespace-nowrap px-3 py-2">{row.total}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+          <div className="border-b border-zinc-200 bg-zinc-50 px-3 py-2.5">
+            <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-600">Top clicked targets</h2>
+          </div>
+          <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
+            <thead className="bg-zinc-50 text-zinc-700">
               <tr>
-                <td className="px-4 py-3 text-zinc-500" colSpan={2}>
-                  No link clicks yet.
-                </td>
+                <th className="px-3 py-2 font-medium">Path</th>
+                <th className="px-3 py-2 font-medium">Clicks</th>
               </tr>
-            ) : (
-              linkClickCounts.map((row) => (
-                <tr key={row.path}>
-                  <td className="px-4 py-3">{row.path}</td>
-                  <td className="whitespace-nowrap px-4 py-3">{row.total}</td>
+            </thead>
+            <tbody className="divide-y divide-zinc-100 text-zinc-800">
+              {linkClickCounts.length === 0 ? (
+                <tr>
+                  <td className="px-3 py-2 text-zinc-500" colSpan={2}>
+                    No link clicks yet.
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                linkClickCounts.slice(0, 10).map((row) => (
+                  <tr key={row.path}>
+                    <td className="max-w-[420px] break-all px-3 py-2">{row.path}</td>
+                    <td className="whitespace-nowrap px-3 py-2">{row.total}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
-      <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white">
-        <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
-          <thead className="bg-zinc-50 text-zinc-700">
-            <tr>
-              <th className="px-4 py-3 font-medium">created_at</th>
-              <th className="px-4 py-3 font-medium">event_name</th>
-              <th className="px-4 py-3 font-medium">path</th>
-              <th className="px-4 py-3 font-medium">session_id</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100 text-zinc-800">
-            {events.length === 0 ? (
+
+      <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+        <div className="border-b border-zinc-200 bg-zinc-50 px-3 py-2.5">
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-600">Recent user flows</h2>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-zinc-200 text-left text-sm">
+            <thead className="bg-zinc-50 text-zinc-700">
               <tr>
-                <td className="px-4 py-3 text-zinc-500" colSpan={4}>
-                  No events yet.
-                </td>
+                <th className="px-3 py-2 font-medium">Session</th>
+                <th className="px-3 py-2 font-medium">Flow</th>
+                <th className="px-3 py-2 font-medium">Started</th>
               </tr>
-            ) : (
-              events.map((event) => (
-                <tr key={event.id}>
-                  <td className="whitespace-nowrap px-4 py-3">{event.created_at}</td>
-                  <td className="whitespace-nowrap px-4 py-3">{event.event_name}</td>
-                  <td className="px-4 py-3">{event.path}</td>
-                  <td className="px-4 py-3 font-mono text-xs">{event.session_id ?? "-"}</td>
+            </thead>
+            <tbody className="divide-y divide-zinc-100 text-zinc-800">
+              {recentSessionFlows.length === 0 ? (
+                <tr>
+                  <td className="px-3 py-2 text-zinc-500" colSpan={3}>
+                    No session flows yet.
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                recentSessionFlows.map((sessionFlow) => {
+                  const allSteps = String(sessionFlow.flow || "")
+                    .split(FLOW_SEPARATOR_REGEX)
+                    .map((step) => step.trim())
+                    .filter(Boolean);
+                  const visibleSteps = allSteps.slice(0, 12);
+
+                  return (
+                    <tr key={sessionFlow.session_id}>
+                      <td className="whitespace-nowrap px-3 py-2 font-mono text-xs">
+                        {sessionFlow.session_id.length > 10
+                          ? `${sessionFlow.session_id.slice(0, 10)}...`
+                          : sessionFlow.session_id}
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="flex flex-wrap items-center gap-1">
+                          {visibleSteps.map((step, index) => (
+                            <span
+                              key={`${sessionFlow.session_id}-${step}-${index}`}
+                              className="inline-flex items-center rounded-md border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px]"
+                            >
+                              {formatEventLabel(step)}
+                            </span>
+                          ))}
+                          {allSteps.length > visibleSteps.length ? (
+                            <span className="text-[11px] text-zinc-500">+ more</span>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-2 text-xs">{formatDateTime(sessionFlow.started_at)}</td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      <details className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
+        <summary className="cursor-pointer list-none border-b border-zinc-200 bg-zinc-50 px-3 py-2.5 text-xs font-semibold uppercase tracking-wide text-zinc-600">
+          Debug: recent raw events
+        </summary>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-zinc-200 text-left text-xs">
+            <thead className="bg-zinc-50 text-zinc-700">
+              <tr>
+                <th className="px-3 py-2 font-medium">Time</th>
+                <th className="px-3 py-2 font-medium">Event</th>
+                <th className="px-3 py-2 font-medium">Path</th>
+                <th className="px-3 py-2 font-medium">Session</th>
+                <th className="px-3 py-2 font-medium">Referrer</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-100 text-zinc-700">
+              {events.length === 0 ? (
+                <tr>
+                  <td className="px-3 py-2 text-zinc-500" colSpan={5}>
+                    No events yet.
+                  </td>
+                </tr>
+              ) : (
+                events.slice(0, 200).map((event) => (
+                  <tr key={event.id}>
+                    <td className="whitespace-nowrap px-3 py-2">{formatDateTime(event.created_at)}</td>
+                    <td className="whitespace-nowrap px-3 py-2">{formatEventLabel(event.event_name)}</td>
+                    <td className="max-w-[400px] break-all px-3 py-2">{event.path}</td>
+                    <td className="px-3 py-2 font-mono">{event.session_id ?? "-"}</td>
+                    <td className="max-w-[260px] break-all px-3 py-2">{event.referrer || "direct"}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </details>
     </section>
   );
 }

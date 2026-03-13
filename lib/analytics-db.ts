@@ -1,4 +1,4 @@
-import { mkdirSync } from "node:fs";
+﻿import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { type AnalyticsEventName } from "@/lib/analytics-events";
@@ -87,12 +87,21 @@ export type AnalyticsSummaryStats = {
   signupStarted: number;
   signupCompleted: number;
   uniqueSessions: number;
+  uniqueVisitors: number;
+  todayVisitors: number;
+  newVisitors: number;
+  returningVisitors: number;
 };
 
 export type AnalyticsSessionFlowRow = {
   session_id: string;
   flow: string;
   started_at: string;
+};
+
+export type AnalyticsSourceCountRow = {
+  source: string;
+  total: number;
 };
 
 export function insertAnalyticsEvent(params: {
@@ -155,6 +164,22 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
   const row = db
     .prepare(
       `
+        WITH session_first_seen AS (
+          SELECT
+            session_id,
+            MIN(created_at) AS first_seen_at
+          FROM analytics_events
+          WHERE session_id IS NOT NULL
+            AND session_id <> ''
+          GROUP BY session_id
+        ),
+        today_sessions AS (
+          SELECT DISTINCT session_id
+          FROM analytics_events
+          WHERE session_id IS NOT NULL
+            AND session_id <> ''
+            AND date(created_at) = date('now')
+        )
         SELECT
           COALESCE(SUM(CASE WHEN event_name = 'landing_page_view' THEN 1 ELSE 0 END), 0) AS landingVisits,
           COALESCE(SUM(CASE WHEN event_name = 'demo_opened' THEN 1 ELSE 0 END), 0) AS demoOpens,
@@ -162,7 +187,19 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
           COALESCE(SUM(CASE WHEN event_name = 'paid_clicked' THEN 1 ELSE 0 END), 0) AS paidClicked,
           COALESCE(SUM(CASE WHEN event_name = 'signup_started' THEN 1 ELSE 0 END), 0) AS signupStarted,
           COALESCE(SUM(CASE WHEN event_name = 'signup_completed' THEN 1 ELSE 0 END), 0) AS signupCompleted,
-          COALESCE(COUNT(DISTINCT session_id), 0) AS uniqueSessions
+          COALESCE(COUNT(DISTINCT session_id), 0) AS uniqueSessions,
+          COALESCE(COUNT(DISTINCT session_id), 0) AS uniqueVisitors,
+          COALESCE((SELECT COUNT(*) FROM today_sessions), 0) AS todayVisitors,
+          COALESCE((SELECT COUNT(*) FROM session_first_seen WHERE date(first_seen_at) = date('now')), 0) AS newVisitors,
+          COALESCE(
+            (
+              SELECT COUNT(*)
+              FROM today_sessions ts
+              JOIN session_first_seen sf ON sf.session_id = ts.session_id
+              WHERE date(sf.first_seen_at) < date('now')
+            ),
+            0
+          ) AS returningVisitors
         FROM analytics_events
       `,
     )
@@ -175,6 +212,10 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
         signupStarted?: unknown;
         signupCompleted?: unknown;
         uniqueSessions?: unknown;
+        uniqueVisitors?: unknown;
+        todayVisitors?: unknown;
+        newVisitors?: unknown;
+        returningVisitors?: unknown;
       }
     | undefined;
 
@@ -186,7 +227,71 @@ export function getAnalyticsSummaryStats(): AnalyticsSummaryStats {
     signupStarted: Number(row?.signupStarted ?? 0),
     signupCompleted: Number(row?.signupCompleted ?? 0),
     uniqueSessions: Number(row?.uniqueSessions ?? 0),
+    uniqueVisitors: Number(row?.uniqueVisitors ?? 0),
+    todayVisitors: Number(row?.todayVisitors ?? 0),
+    newVisitors: Number(row?.newVisitors ?? 0),
+    returningVisitors: Number(row?.returningVisitors ?? 0),
   };
+}
+
+function normalizeReferrerHost(referrer: string): string {
+  const raw = referrer.trim();
+  if (!raw) return "direct";
+  try {
+    const parsed = new URL(raw);
+    const host = parsed.hostname.replace(/^www\./i, "").toLowerCase();
+    return host || "direct";
+  } catch {
+    return "other";
+  }
+}
+
+function mapSourceBucket(referrer: string): string {
+  const host = normalizeReferrerHost(referrer);
+  if (host === "direct") return "direct";
+  if (host.includes("google.")) return "google";
+  if (host.includes("linkedin.")) return "linkedin";
+  if (host.includes("reddit.")) return "reddit";
+  return "other";
+}
+
+export function listTrafficSourceCounts(limit = 10): AnalyticsSourceCountRow[] {
+  const db = getDb();
+  const rows = db
+    .prepare(
+      `
+        SELECT
+          sessions.session_id AS session_id,
+          COALESCE(
+            (
+              SELECT referrer
+              FROM analytics_events inner_events
+              WHERE inner_events.session_id = sessions.session_id
+                AND inner_events.referrer IS NOT NULL
+                AND TRIM(inner_events.referrer) <> ''
+              ORDER BY inner_events.id ASC
+              LIMIT 1
+            ),
+            ''
+          ) AS referrer
+        FROM analytics_events AS sessions
+        WHERE sessions.session_id IS NOT NULL
+          AND sessions.session_id <> ''
+        GROUP BY sessions.session_id
+      `,
+    )
+    .all() as Array<{ session_id?: unknown; referrer?: unknown }>;
+
+  const totals = new Map<string, number>();
+  for (const row of rows) {
+    const source = mapSourceBucket(String(row.referrer ?? ""));
+    totals.set(source, (totals.get(source) ?? 0) + 1);
+  }
+
+  return [...totals.entries()]
+    .map(([source, total]) => ({ source, total }))
+    .sort((a, b) => b.total - a.total || a.source.localeCompare(b.source))
+    .slice(0, limit);
 }
 
 export function listRecentSessionFlows(limit = 20): AnalyticsSessionFlowRow[] {
@@ -197,7 +302,7 @@ export function listRecentSessionFlows(limit = 20): AnalyticsSessionFlowRow[] {
         SELECT
           sessions.session_id AS session_id,
           (
-            SELECT GROUP_CONCAT(ordered.event_name, ' → ')
+            SELECT GROUP_CONCAT(ordered.event_name, ' -> ')
             FROM (
               SELECT event_name
               FROM analytics_events
