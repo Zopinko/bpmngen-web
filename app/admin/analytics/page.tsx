@@ -55,7 +55,7 @@ export default async function AnalyticsAdminPage() {
   ];
 
   return (
-    <section className="space-y-5">
+    <section className="space-y-5 pt-10 sm:pt-12 lg:pt-16">
       <header className="rounded-xl border border-zinc-200 bg-white px-5 py-4">
         <h1 className="text-xl font-semibold tracking-tight text-zinc-900">Web analytics overview</h1>
         <p className="mt-0.5 text-sm text-zinc-600">Simple marketing funnel snapshot: traffic, top sources, and key conversions.</p>
@@ -159,3 +159,4 @@ export default async function AnalyticsAdminPage() {
     </section>
   );
 }
+

@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -46,14 +44,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-zinc-50 text-zinc-900 antialiased">
-        <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-          <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-16">
-            {children}
-          </main>
-          <SiteFooter />
-        </div>
+        <main className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 sm:pb-12 lg:px-8 lg:pb-16">
+          {children}
+        </main>
       </body>
     </html>
   );
 }
+
