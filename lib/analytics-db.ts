@@ -1,4 +1,4 @@
-﻿import { mkdirSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { type AnalyticsEventName } from "@/lib/analytics-events";
@@ -42,6 +42,10 @@ function getDb(): DatabaseSyncLike {
     console.info(`[analytics] using db path: ${dbPath}`);
     globalForDb.__analyticsDb = new DatabaseSync(dbPath);
     globalForDb.__analyticsDb.exec(`
+      PRAGMA journal_mode = WAL;
+      PRAGMA synchronous = NORMAL;
+      PRAGMA busy_timeout = 5000;
+
       CREATE TABLE IF NOT EXISTS analytics_events (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         event_name TEXT NOT NULL,
@@ -51,6 +55,11 @@ function getDb(): DatabaseSyncLike {
         user_agent TEXT,
         created_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
+
+      CREATE INDEX IF NOT EXISTS idx_analytics_events_created_at ON analytics_events(created_at DESC);
+      CREATE INDEX IF NOT EXISTS idx_analytics_events_event_name ON analytics_events(event_name);
+      CREATE INDEX IF NOT EXISTS idx_analytics_events_session_id ON analytics_events(session_id);
+      CREATE INDEX IF NOT EXISTS idx_analytics_events_event_path ON analytics_events(event_name, path);
     `);
 
     const columns = globalForDb.__analyticsDb
@@ -320,3 +329,4 @@ export function listRecentSessionFlows(limit = 20): AnalyticsSessionFlowRow[] {
     )
     .all(limit) as AnalyticsSessionFlowRow[];
 }
+

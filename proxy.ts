@@ -1,20 +1,21 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { safeEqual } from "@/lib/security";
 
 function unauthorizedResponse() {
   return new NextResponse("Unauthorized", {
     status: 401,
     headers: {
       "WWW-Authenticate": 'Basic realm="Analytics Admin"',
+      "Cache-Control": "no-store",
     },
   });
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const username = process.env.ANALYTICS_ADMIN_USER;
   const password = process.env.ANALYTICS_ADMIN_PASSWORD;
 
-  // Fail closed: admin is blocked when credentials are not configured.
   if (!username || !password) {
     return unauthorizedResponse();
   }
@@ -44,11 +45,13 @@ export function middleware(request: NextRequest) {
   const providedUser = decoded.slice(0, separatorIndex);
   const providedPassword = decoded.slice(separatorIndex + 1);
 
-  if (providedUser !== username || providedPassword !== password) {
+  if (!safeEqual(providedUser, username) || !safeEqual(providedPassword, password)) {
     return unauthorizedResponse();
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "no-store");
+  return response;
 }
 
 export const config = {
