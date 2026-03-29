@@ -57,22 +57,38 @@ export function buildSignupUrlWithSid(signupUrl: string): string {
   }
 }
 
+function buildTrackPayload(eventName: AnalyticsEventName, path?: string): string {
+  const resolvedPath =
+    path ?? (typeof window !== "undefined" ? window.location.pathname : "/");
+  const sessionId = getOrCreateSessionId();
+
+  return JSON.stringify({
+    event_name: eventName,
+    path: resolvedPath,
+    session_id: sessionId,
+  });
+}
+
 export async function trackEvent(eventName: AnalyticsEventName, path?: string): Promise<void> {
   try {
-    const resolvedPath =
-      path ?? (typeof window !== "undefined" ? window.location.pathname : "/");
-    const sessionId = getOrCreateSessionId();
+    const payload = buildTrackPayload(eventName, path);
+
+    if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+      const sent = navigator.sendBeacon(
+        "/api/analytics/track",
+        new Blob([payload], { type: "application/json" }),
+      );
+      if (sent) {
+        return;
+      }
+    }
 
     await fetch("/api/analytics/track", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        event_name: eventName,
-        path: resolvedPath,
-        session_id: sessionId,
-      }),
+      body: payload,
       keepalive: true,
     });
   } catch {
