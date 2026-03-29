@@ -85,23 +85,42 @@ function parseUrl(value: string | null): URL | null {
   }
 }
 
+function buildForwardedOrigin(request: Request): string | null {
+  const forwardedHost = request.headers.get("x-forwarded-host")?.trim();
+  const host = forwardedHost || request.headers.get("host")?.trim();
+  if (!host) {
+    return null;
+  }
+
+  const forwardedProto = request.headers.get("x-forwarded-proto")?.trim();
+  const protocol = forwardedProto || parseUrl(request.url)?.protocol.replace(":", "") || "https";
+
+  return `${protocol}://${host}`;
+}
+
 export function isTrustedAnalyticsRequest(request: Request): boolean {
+  const trustedOrigins = new Set<string>();
   const requestUrl = parseUrl(request.url);
-  if (!requestUrl) {
-    return false;
+  if (requestUrl) {
+    trustedOrigins.add(requestUrl.origin);
+  }
+
+  const forwardedOrigin = buildForwardedOrigin(request);
+  if (forwardedOrigin) {
+    trustedOrigins.add(forwardedOrigin);
   }
 
   const originHeader = parseUrl(request.headers.get("origin"));
   if (originHeader) {
-    return originHeader.origin === requestUrl.origin;
+    return trustedOrigins.has(originHeader.origin);
   }
 
   const refererHeader = parseUrl(request.headers.get("referer"));
   if (refererHeader) {
-    return refererHeader.origin === requestUrl.origin;
+    return trustedOrigins.has(refererHeader.origin);
   }
 
-  return true;
+  return trustedOrigins.size > 0;
 }
 
 function getRateLimitStore(): Map<string, RateLimitRecord> {
