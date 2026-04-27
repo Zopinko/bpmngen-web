@@ -26,15 +26,10 @@ export function TrackEventLink({
   onClick,
   ...props
 }: TrackEventLinkProps) {
-  const resolvedHref =
-    appendSessionIdToSignup && typeof props.href === "string"
-      ? buildSignupUrlWithSid(props.href)
-      : props.href;
-
   return (
     <Link
       {...props}
-      href={resolvedHref}
+      href={props.href}
       onClick={(event) => {
         if (appendSessionIdToSignup && typeof props.href === "string" && event.currentTarget instanceof HTMLAnchorElement) {
           event.currentTarget.href = buildSignupUrlWithSid(props.href, true);

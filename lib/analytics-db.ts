@@ -3,6 +3,8 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { type AnalyticsEventName } from "@/lib/analytics-events";
 
+export const ANALYTICS_RETENTION_DAYS = 180;
+
 function resolveAnalyticsDbPath(): string {
   const configuredPath = process.env.ANALYTICS_DB_PATH?.trim();
   if (configuredPath) {
@@ -33,7 +35,31 @@ type DatabaseSyncLike = {
 
 type AnalyticsDatabaseGlobal = typeof globalThis & {
   __analyticsDb?: DatabaseSyncLike;
+  __analyticsRetentionCleanupDay?: string;
 };
+
+function formatUtcSqliteDate(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getUTCDate()}`.padStart(2, "0");
+  const hours = `${date.getUTCHours()}`.padStart(2, "0");
+  const minutes = `${date.getUTCMinutes()}`.padStart(2, "0");
+  const seconds = `${date.getUTCSeconds()}`.padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+function maybeCleanupExpiredAnalyticsData(db: DatabaseSyncLike): void {
+  const globalForDb = globalThis as AnalyticsDatabaseGlobal;
+  const cleanupDay = new Date().toISOString().slice(0, 10);
+  if (globalForDb.__analyticsRetentionCleanupDay === cleanupDay) {
+    return;
+  }
+
+  const cutoff = new Date();
+  cutoff.setUTCDate(cutoff.getUTCDate() - ANALYTICS_RETENTION_DAYS);
+  db.prepare("DELETE FROM analytics_events WHERE created_at < ?").run(formatUtcSqliteDate(cutoff));
+  globalForDb.__analyticsRetentionCleanupDay = cleanupDay;
+}
 
 function getDb(): DatabaseSyncLike {
   const globalForDb = globalThis as AnalyticsDatabaseGlobal;
@@ -70,6 +96,8 @@ function getDb(): DatabaseSyncLike {
       globalForDb.__analyticsDb.exec("ALTER TABLE analytics_events ADD COLUMN session_id TEXT");
     }
   }
+
+  maybeCleanupExpiredAnalyticsData(globalForDb.__analyticsDb);
   return globalForDb.__analyticsDb;
 }
 
@@ -114,16 +142,6 @@ export type AnalyticsSourceCountRow = {
 };
 
 export type AnalyticsRangeKey = "today" | "7d" | "30d" | "all";
-
-function formatUtcSqliteDate(date: Date): string {
-  const year = date.getUTCFullYear();
-  const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
-  const day = `${date.getUTCDate()}`.padStart(2, "0");
-  const hours = `${date.getUTCHours()}`.padStart(2, "0");
-  const minutes = `${date.getUTCMinutes()}`.padStart(2, "0");
-  const seconds = `${date.getUTCSeconds()}`.padStart(2, "0");
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
 
 function resolveRangeStart(range: AnalyticsRangeKey): string | null {
   if (range === "all") {
@@ -386,4 +404,3 @@ export function listRecentSessionFlows(limit = 20): AnalyticsSessionFlowRow[] {
     )
     .all(limit) as AnalyticsSessionFlowRow[];
 }
-

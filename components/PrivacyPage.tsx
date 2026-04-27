@@ -1,3 +1,6 @@
+import { AnalyticsConsentControls } from "@/components/AnalyticsConsentControls";
+import { ANALYTICS_RETENTION_DAYS } from "@/lib/analytics-db";
+
 type PrivacyPageProps = {
   locale: "en" | "sk";
 };
@@ -24,32 +27,42 @@ const COPY = {
         body:
           "Analytics stay disabled until you click Allow analytics. If you reject analytics, no analytics events are sent and the local session identifier is removed.",
       },
+      {
+        title: "How long we keep analytics data",
+        body: `Analytics events are automatically deleted after ${ANALYTICS_RETENTION_DAYS} days.`,
+      },
     ],
+    controlsTitle: "Privacy controls",
     back: "Back to homepage",
   },
   sk: {
-    eyebrow: "Súkromie",
-    title: "Ako BPMN.GEN používa analytiku na tomto webe",
+    eyebrow: "Sukromie",
+    title: "Ako BPMN.GEN pouziva analytiku na tomto webe",
     intro:
-      "Tento web používa iba first-party analytiku a to až po vašom výslovnom súhlase v consent lište.",
+      "Tento web pouziva iba first-party analytiku a to az po vasom vyslovnom suhlase v consent liste.",
     sections: [
       {
-        title: "Čo ukladáme",
+        title: "Co ukladame",
         body:
-          "Ak povolíte analytiku, v localStorage prehliadača vytvoríme náhodný identifikátor relácie. Používame ho na základné pochopenie opakovaných návštev a pohybu po bpmngen.com.",
+          "Ak povolite analytiku, v localStorage prehliadaca vytvorime nahodny identifikator relacie. Pouzivame ho na zakladne pochopenie opakovanych navstev a pohybu po bpmngen.com.",
       },
       {
-        title: "Čo zbierame",
+        title: "Co zbierame",
         body:
-          "Zaznamenávame zobrazenia stránok, kliky na CTA, navštívenú cestu, referrer, user-agent prehliadača a vytvorený identifikátor relácie. Na tomto webe nenačítavame Google Analytics, Meta Pixel ani iné reklamné trackery tretích strán.",
+          "Zaznamenavame zobrazenia stranok, kliky na CTA, navstivenu cestu, referrer, user-agent prehliadaca a vytvoreny identifikator relacie. Na tomto webe nenacitavame Google Analytics, Meta Pixel ani ine reklamne trackery tretich stran.",
       },
       {
-        title: "Kedy analytika beží",
+        title: "Kedy analytika bezi",
         body:
-          "Analytika je vypnutá, kým nekliknete na Povoliť analytiku. Ak analytiku odmietnete, žiadne analytické eventy sa neposielajú a lokálny identifikátor relácie sa odstráni.",
+          "Analytika je vypnuta, kym nekliknete na Povolit analytiku. Ak analytiku odmietnete, ziadne analyticke eventy sa neposielaju a lokalny identifikator relacie sa odstrani.",
+      },
+      {
+        title: "Ako dlho data drzime",
+        body: `Analytics eventy sa automaticky mazu po ${ANALYTICS_RETENTION_DAYS} dnoch.`,
       },
     ],
-    back: "Späť na homepage",
+    controlsTitle: "Ovladanie sukromia",
+    back: "Spat na homepage",
   },
 } as const;
 
@@ -71,6 +84,13 @@ export function PrivacyPage({ locale }: PrivacyPageProps) {
       </section>
 
       <section className="grid gap-4">
+        <article className="rounded-[1.75rem] border border-white/8 bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)] px-6 py-6 sm:px-8">
+          <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-50">{copy.controlsTitle}</h2>
+          <div className="mt-4">
+            <AnalyticsConsentControls locale={locale} />
+          </div>
+        </article>
+
         {copy.sections.map((section) => (
           <article
             key={section.title}
