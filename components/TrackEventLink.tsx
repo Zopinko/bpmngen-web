@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type ComponentProps, useEffect, useRef } from "react";
+import { type ComponentProps } from "react";
 import { buildSignupUrlWithSid, trackEvent } from "@/lib/analytics-client";
 import { type AnalyticsEventName } from "@/lib/analytics-events";
 
@@ -26,20 +26,19 @@ export function TrackEventLink({
   onClick,
   ...props
 }: TrackEventLinkProps) {
-  const linkRef = useRef<HTMLAnchorElement | null>(null);
-
-  useEffect(() => {
-    if (!appendSessionIdToSignup || typeof props.href !== "string" || !linkRef.current) {
-      return;
-    }
-    linkRef.current.href = buildSignupUrlWithSid(props.href);
-  }, [appendSessionIdToSignup, props.href]);
+  const resolvedHref =
+    appendSessionIdToSignup && typeof props.href === "string"
+      ? buildSignupUrlWithSid(props.href)
+      : props.href;
 
   return (
     <Link
-      ref={linkRef}
       {...props}
+      href={resolvedHref}
       onClick={(event) => {
+        if (appendSessionIdToSignup && typeof props.href === "string" && event.currentTarget instanceof HTMLAnchorElement) {
+          event.currentTarget.href = buildSignupUrlWithSid(props.href, true);
+        }
         onClick?.(event);
         for (const trackedEvent of events) {
           void trackEvent(trackedEvent.eventName, trackedEvent.path ?? path);

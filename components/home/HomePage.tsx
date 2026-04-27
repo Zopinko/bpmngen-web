@@ -1,3 +1,4 @@
+import { AnalyticsConsentBanner } from "@/components/AnalyticsConsentBanner";
 import { LandingPageViewTracker } from "@/components/LandingPageViewTracker";
 import { TrackEventLink } from "@/components/TrackEventLink";
 import { type HomePageContent } from "@/content/home/types";
@@ -42,6 +43,7 @@ export function HomePage({ content }: { content: HomePageContent }) {
   return (
     <div className="space-y-8 sm:space-y-10">
       <LandingPageViewTracker />
+      <AnalyticsConsentBanner locale={content.locale} />
 
       <section className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.12),_transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(217,119,6,0.10),_transparent_24%),linear-gradient(135deg,#09090b_0%,#111827_42%,#1c1917_100%)] px-6 py-8 shadow-[0_24px_90px_rgba(0,0,0,0.42)] sm:px-8 sm:py-10 lg:px-12 lg:py-14">
         <div
@@ -320,6 +322,7 @@ export function HomePage({ content }: { content: HomePageContent }) {
             <a href="#features" className="transition hover:text-stone-50">{content.nav.product}</a>
             <a href="#pricing" className="transition hover:text-stone-50">{content.nav.pricing}</a>
             <a href="#faq" className="transition hover:text-stone-50">{content.nav.faq}</a>
+            <a href={localePath(content.locale, "/privacy")} className="transition hover:text-stone-50">{content.footer.privacy}</a>
             <a href={altLocaleHref} className="transition hover:text-stone-50">{altLocale.toUpperCase()}</a>
           </div>
         </div>

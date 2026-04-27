@@ -56,7 +56,7 @@ export const homeContentSk: HomePageContent = {
     eyebrow: "Positioning",
     title: "Väčšina nástrojov začína diagramom. Vy by ste nemali.",
     text:
-      "Väčšina nástrojov predpokladá, že procesy už máte spísané.\n\nNemáte.\n\nBPMN.GEN začína tam, kde procesy naozaj existujú, v ľuďoch, a premieňa ich na niečo, čo firma vie používať.",
+      "Väčšina nástrojov predpokladá, že procesy už máte spísané.\n\nBPMN.GEN začína tam, kde procesy naozaj existujú, v ľuďoch, a premieňa ich na niečo, čo firma vie používať.",
     cards: [
       {
         eyebrow: "Core insight",
@@ -83,7 +83,7 @@ export const homeContentSk: HomePageContent = {
   },
   pricing: {
     eyebrow: "Ceny",
-    title: "Začnite jednoducho. Rástite s tímom.",
+    title: "Začnite jednoducho. Rozvíjajte sa s tímom.",
     text: "Počas testovania zadarmo. Skúste to na reálnom procese a uvidíte rozdiel.",
     extra: "Vyskúšate na vlastnom procese za menej ako 5 minút.",
     featuredLabel: "Odporúčané",
@@ -139,6 +139,7 @@ export const homeContentSk: HomePageContent = {
   },
   footer: {
     rights: "(c) {year} BPMN.GEN. Všetky práva vyhradené.",
+    privacy: "Súkromie",
   },
 };
 

@@ -113,6 +113,35 @@ export type AnalyticsSourceCountRow = {
   total: number;
 };
 
+export type AnalyticsRangeKey = "today" | "7d" | "30d" | "all";
+
+function formatUtcSqliteDate(date: Date): string {
+  const year = date.getUTCFullYear();
+  const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getUTCDate()}`.padStart(2, "0");
+  const hours = `${date.getUTCHours()}`.padStart(2, "0");
+  const minutes = `${date.getUTCMinutes()}`.padStart(2, "0");
+  const seconds = `${date.getUTCSeconds()}`.padStart(2, "0");
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+function resolveRangeStart(range: AnalyticsRangeKey): string | null {
+  if (range === "all") {
+    return null;
+  }
+
+  const now = new Date();
+  if (range === "today") {
+    now.setUTCHours(0, 0, 0, 0);
+    return formatUtcSqliteDate(now);
+  }
+
+  const days = range === "7d" ? 7 : 30;
+  now.setUTCDate(now.getUTCDate() - (days - 1));
+  now.setUTCHours(0, 0, 0, 0);
+  return formatUtcSqliteDate(now);
+}
+
 export function insertAnalyticsEvent(params: {
   eventName: AnalyticsEventName;
   pathValue: string;
@@ -147,6 +176,34 @@ export function listAnalyticsEvents(limit = 500): AnalyticsEventRow[] {
       `,
     )
     .all(limit) as AnalyticsEventRow[];
+}
+
+export function listAnalyticsEventsForRange(range: AnalyticsRangeKey): AnalyticsEventRow[] {
+  const db = getDb();
+  const rangeStart = resolveRangeStart(range);
+
+  if (!rangeStart) {
+    return db
+      .prepare(
+        `
+          SELECT id, event_name, path, session_id, referrer, user_agent, created_at
+          FROM analytics_events
+          ORDER BY created_at ASC, id ASC
+        `,
+      )
+      .all() as AnalyticsEventRow[];
+  }
+
+  return db
+    .prepare(
+      `
+        SELECT id, event_name, path, session_id, referrer, user_agent, created_at
+        FROM analytics_events
+        WHERE created_at >= ?
+        ORDER BY created_at ASC, id ASC
+      `,
+    )
+    .all(rangeStart) as AnalyticsEventRow[];
 }
 
 export function listAnalyticsPathCountsForEvent(

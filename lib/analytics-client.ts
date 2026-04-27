@@ -1,24 +1,18 @@
 "use client";
 
 import { type AnalyticsEventName } from "@/lib/analytics-events";
-
-const SESSION_STORAGE_KEY = "bpmngen_session_id";
-
-function getStoredSessionId(): string | undefined {
-  if (typeof window === "undefined") {
-    return undefined;
-  }
-
-  try {
-    const stored = window.localStorage.getItem(SESSION_STORAGE_KEY);
-    return stored || undefined;
-  } catch {
-    return undefined;
-  }
-}
+import {
+  getAnalyticsSessionId,
+  hasAnalyticsConsent,
+  setAnalyticsSessionId,
+} from "@/lib/analytics-consent";
 
 function getOrCreateSessionId(): string | undefined {
-  const stored = getStoredSessionId();
+  if (!hasAnalyticsConsent()) {
+    return undefined;
+  }
+
+  const stored = getAnalyticsSessionId();
   if (stored) {
     return stored;
   }
@@ -33,15 +27,19 @@ function getOrCreateSessionId(): string | undefined {
         ? window.crypto.randomUUID()
         : `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-    window.localStorage.setItem(SESSION_STORAGE_KEY, generated);
+    setAnalyticsSessionId(generated);
     return generated;
   } catch {
     return undefined;
   }
 }
 
-export function buildSignupUrlWithSid(signupUrl: string): string {
-  const sessionId = getStoredSessionId();
+export function buildSignupUrlWithSid(signupUrl: string, createIfMissing = false): string {
+  if (!hasAnalyticsConsent()) {
+    return signupUrl;
+  }
+
+  const sessionId = createIfMissing ? getOrCreateSessionId() : getAnalyticsSessionId();
   if (!sessionId) {
     return signupUrl;
   }
@@ -70,6 +68,10 @@ function buildTrackPayload(eventName: AnalyticsEventName, path?: string): string
 }
 
 export async function trackEvent(eventName: AnalyticsEventName, path?: string): Promise<void> {
+  if (!hasAnalyticsConsent()) {
+    return;
+  }
+
   try {
     const payload = buildTrackPayload(eventName, path);
 

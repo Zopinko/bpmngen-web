@@ -139,5 +139,6 @@ export const homeContentEn: HomePageContent = {
   },
   footer: {
     rights: "(c) {year} BPMN.GEN. All rights reserved.",
+    privacy: "Privacy",
   },
 };

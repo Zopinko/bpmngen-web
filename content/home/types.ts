@@ -78,5 +78,6 @@ export type HomePageContent = {
   };
   footer: {
     rights: string;
+    privacy: string;
   };
 };
