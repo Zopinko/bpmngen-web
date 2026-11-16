@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const isDev = process.env.NODE_ENV !== "production";
 
 // The app origin whose demo is embedded on the homepage.
-const APP_ORIGIN = "https://app.bpmngen.com";
+const APP_ORIGIN = process.env.NEXT_PUBLIC_APP_ORIGIN || "https://app.bpmngen.com";
 
 const contentSecurityPolicy = [
   "default-src 'self'",

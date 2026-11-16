@@ -75,6 +75,7 @@ export function HomePage({ content }: { content: HomePageContent }) {
 
           <TrackEventLink
             href={`https://app.bpmngen.com/demo?lang=${content.locale}`}
+            appendSessionIdToSignup
             events={[
               { eventName: "demo_opened" },
               { eventName: "link_click", path: ctaPath(content.locale, "header_try_app") },
@@ -105,6 +106,7 @@ export function HomePage({ content }: { content: HomePageContent }) {
             <div className="flex flex-col gap-3 sm:flex-row">
               <TrackEventLink
                 href={`https://app.bpmngen.com/demo?lang=${content.locale}`}
+            appendSessionIdToSignup
                 events={[
                   { eventName: "demo_opened" },
                   { eventName: "link_click", path: ctaPath(content.locale, "hero_try_app") },
