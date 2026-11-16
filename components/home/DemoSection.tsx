@@ -2,10 +2,12 @@
 
 import { useEffect, useRef } from "react";
 import { TrackEventLink } from "@/components/TrackEventLink";
-import { trackEvent } from "@/lib/analytics-client";
+import { getSharableAnalyticsSessionId, trackEvent } from "@/lib/analytics-client";
+import { subscribeAnalyticsConsent } from "@/lib/analytics-consent";
 import { type HomePageContent } from "@/content/home/types";
 
-const DEMO_URL = "https://app.bpmngen.com/demo";
+const APP_ORIGIN = process.env.NEXT_PUBLIC_APP_ORIGIN || "https://app.bpmngen.com";
+const DEMO_URL = `${APP_ORIGIN}/demo`;
 
 type DemoSectionProps = {
   locale: HomePageContent["locale"];
@@ -36,6 +38,31 @@ export function DemoSection({ locale, content, trackingPath, fullscreenTrackingP
     return () => window.removeEventListener("blur", handleBlur);
   }, [trackingPath]);
 
+  // The embedded demo asks for our analytics session id ("ready") and then sends its
+  // milestones (started / completed / signup clicked) straight to our analytics API with it.
+  // It only gets an id when the visitor allowed analytics, and null again if they revoke it.
+  useEffect(() => {
+    const sendSession = () => {
+      frameRef.current?.contentWindow?.postMessage(
+        { source: "bpmngen-web", type: "session", sid: getSharableAnalyticsSessionId() ?? null },
+        APP_ORIGIN,
+      );
+    };
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== APP_ORIGIN || event.source !== frameRef.current?.contentWindow) return;
+      const data = event.data as { source?: unknown; type?: unknown } | null;
+      if (data?.source === "bpmngen-demo" && data.type === "ready") {
+        sendSession();
+      }
+    };
+    window.addEventListener("message", handleMessage);
+    const unsubscribe = subscribeAnalyticsConsent(sendSession);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      unsubscribe();
+    };
+  }, []);
+
   return (
     <section
       id="demo"
@@ -49,6 +76,7 @@ export function DemoSection({ locale, content, trackingPath, fullscreenTrackingP
         </div>
         <TrackEventLink
           href={demoUrl}
+          appendSessionIdToSignup
           target="_blank"
           rel="noopener"
           events={[
@@ -69,7 +97,7 @@ export function DemoSection({ locale, content, trackingPath, fullscreenTrackingP
           title={content.frameTitle}
           loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
-          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-top-navigation-by-user-activation"
           className="block h-[760px] w-full"
         />
       </div>
@@ -79,6 +107,7 @@ export function DemoSection({ locale, content, trackingPath, fullscreenTrackingP
         <p className="text-sm leading-6 text-stone-300/80">{content.mobileNote}</p>
         <TrackEventLink
           href={demoUrl}
+          appendSessionIdToSignup
           target="_blank"
           rel="noopener"
           events={[

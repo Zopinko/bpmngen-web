@@ -91,6 +91,11 @@ function parseUrl(value: string | null): URL | null {
 const DEFAULT_ALLOWED_ORIGINS = ["https://bpmngen.com", "https://www.bpmngen.com"];
 const DEV_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"];
 
+// The app sends demo milestones and signup_completed straight to this API (cross-origin).
+// It only does so when the visitor carries a session id from this site, i.e. after consent.
+const APP_ORIGINS = ["https://app.bpmngen.com"];
+const DEV_APP_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
+
 function getAllowedOrigins(): Set<string> {
   const configured = (process.env.ANALYTICS_ALLOWED_ORIGINS ?? "")
     .split(",")
@@ -98,12 +103,34 @@ function getAllowedOrigins(): Set<string> {
     .filter((value): value is string => Boolean(value));
 
   const origins = new Set(configured.length > 0 ? configured : DEFAULT_ALLOWED_ORIGINS);
+  for (const origin of getAppOrigins()) {
+    origins.add(origin);
+  }
   if (process.env.NODE_ENV !== "production") {
     for (const origin of DEV_ALLOWED_ORIGINS) {
       origins.add(origin);
     }
   }
   return origins;
+}
+
+function getAppOrigins(): string[] {
+  return process.env.NODE_ENV !== "production" ? [...APP_ORIGINS, ...DEV_APP_ORIGINS] : APP_ORIGINS;
+}
+
+/** CORS headers for the app's cross-origin requests; empty for anything else. */
+export function getAnalyticsCorsHeaders(request: Request): Record<string, string> {
+  const origin = request.headers.get("origin");
+  if (!origin || !getAppOrigins().includes(origin)) {
+    return {};
+  }
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "content-type",
+    "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
+  };
 }
 
 /**

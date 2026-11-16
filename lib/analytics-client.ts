@@ -34,6 +34,11 @@ function getOrCreateSessionId(): string | undefined {
   }
 }
 
+/** Session id to hand to the app (embedded demo), only when analytics are allowed. */
+export function getSharableAnalyticsSessionId(): string | undefined {
+  return hasAnalyticsConsent() ? getOrCreateSessionId() : undefined;
+}
+
 export function buildSignupUrlWithSid(signupUrl: string, createIfMissing = false): string {
   if (!hasAnalyticsConsent()) {
     return signupUrl;

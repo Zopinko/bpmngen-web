@@ -45,10 +45,15 @@ export type AnalyticsDashboardSummary = {
   returningSessions: number;
   landingVisits: number;
   demoOpens: number;
+  demoStarted: number;
+  demoCompleted: number;
+  demoSignupClicked: number;
   ctaClicks: number;
   signupStarted: number;
   signupCompleted: number;
   demoConversionRate: number;
+  demoStartRate: number;
+  demoCompletionRate: number;
   signupStartRate: number;
   signupCompletionRate: number;
   returningShare: number;
@@ -233,6 +238,12 @@ function formatFlowStep(event: AnalyticsEventRow): string {
       return `signup:${formatPlan(parsed.plan ?? "unknown")}`;
     case "demo_opened":
       return "demo";
+    case "demo_started":
+      return "demo:started";
+    case "demo_completed":
+      return "demo:completed";
+    case "demo_signup_clicked":
+      return "demo:signup";
     case "landing_page_view":
       return parsed.locale === "sk" ? "landing:sk" : "landing:en";
     default:
@@ -293,6 +304,9 @@ export function getAnalyticsDashboardData(range: AnalyticsRangeKey): AnalyticsDa
 
   let landingVisits = 0;
   let demoOpens = 0;
+  let demoStarted = 0;
+  let demoCompleted = 0;
+  let demoSignupClicked = 0;
   let ctaClicks = 0;
   let signupStarted = 0;
   let signupCompleted = 0;
@@ -385,6 +399,10 @@ export function getAnalyticsDashboardData(range: AnalyticsRangeKey): AnalyticsDa
     if (event.event_name === "signup_completed") {
       signupCompleted += 1;
     }
+
+    if (event.event_name === "demo_started") demoStarted += 1;
+    if (event.event_name === "demo_completed") demoCompleted += 1;
+    if (event.event_name === "demo_signup_clicked") demoSignupClicked += 1;
   }
 
   for (const sessionId of filteredSessions) {
@@ -443,10 +461,15 @@ export function getAnalyticsDashboardData(range: AnalyticsRangeKey): AnalyticsDa
       returningSessions,
       landingVisits,
       demoOpens,
+      demoStarted,
+      demoCompleted,
+      demoSignupClicked,
       ctaClicks,
       signupStarted,
       signupCompleted,
       demoConversionRate: formatPercent(demoOpens, landingVisits),
+      demoStartRate: formatPercent(demoStarted, demoOpens),
+      demoCompletionRate: formatPercent(demoCompleted, demoStarted),
       signupStartRate: formatPercent(signupStarted, landingVisits),
       signupCompletionRate: formatPercent(signupCompleted, signupStarted),
       returningShare: formatPercent(returningSessions, filteredSessions.size),

@@ -241,6 +241,9 @@ export default async function AnalyticsAdminPage({
   const funnelRows = [
     { label: "Landing visits", value: formatNumber(summary.landingVisits), note: "Tracked page loads after consent" },
     { label: "Demo opens", value: formatNumber(summary.demoOpens), note: formatPercent(summary.demoConversionRate) },
+    { label: "Demo started", value: formatNumber(summary.demoStarted), note: `${formatPercent(summary.demoStartRate)} of demo opens` },
+    { label: "Demo completed", value: formatNumber(summary.demoCompleted), note: `${formatPercent(summary.demoCompletionRate)} of demo starts` },
+    { label: "Demo signup clicks", value: formatNumber(summary.demoSignupClicked), note: "Create account clicked inside the demo" },
     { label: "Signup started", value: formatNumber(summary.signupStarted), note: formatPercent(summary.signupStartRate) },
     {
       label: "Signup completed",

@@ -5,6 +5,9 @@ export const ALLOWED_ANALYTICS_EVENTS = [
   "signup_started",
   "signup_completed",
   "link_click",
+  "demo_started",
+  "demo_completed",
+  "demo_signup_clicked",
 ] as const;
 
 export type AnalyticsEventName = (typeof ALLOWED_ANALYTICS_EVENTS)[number];
