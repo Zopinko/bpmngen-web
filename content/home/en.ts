@@ -75,6 +75,15 @@ export const homeContentEn: HomePageContent = {
       },
     ],
   },
+  demo: {
+    eyebrow: "Live demo",
+    title: "Try it right here - no account needed",
+    text: "Describe a short process and watch it turn into a BPMN map. The demo is limited to 2 roles and nothing you type is saved.",
+    frameTitle: "BPMN.GEN interactive demo",
+    openFullscreen: "Open the demo in full screen",
+    mobileNote: "The map editor works best on a larger screen. Open the demo in a new tab to try it.",
+    mobileCta: "Open the demo",
+  },
   howItWorks: {
     eyebrow: "How It Works",
     title: "From how we do it to a process your team can use",

@@ -1,6 +1,7 @@
 import { AnalyticsConsentBanner } from "@/components/AnalyticsConsentBanner";
 import { LandingPageViewTracker } from "@/components/LandingPageViewTracker";
 import { TrackEventLink } from "@/components/TrackEventLink";
+import { DemoSection } from "@/components/home/DemoSection";
 import { type HomePageContent } from "@/content/home/types";
 
 function localePath(locale: "en" | "sk", path = "/") {
@@ -73,7 +74,7 @@ export function HomePage({ content }: { content: HomePageContent }) {
           </div>
 
           <TrackEventLink
-            href="https://app.bpmngen.com/demo"
+            href={`https://app.bpmngen.com/demo?lang=${content.locale}`}
             events={[
               { eventName: "demo_opened" },
               { eventName: "link_click", path: ctaPath(content.locale, "header_try_app") },
@@ -103,7 +104,7 @@ export function HomePage({ content }: { content: HomePageContent }) {
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <TrackEventLink
-                href="https://app.bpmngen.com/demo"
+                href={`https://app.bpmngen.com/demo?lang=${content.locale}`}
                 events={[
                   { eventName: "demo_opened" },
                   { eventName: "link_click", path: ctaPath(content.locale, "hero_try_app") },
@@ -197,6 +198,13 @@ export function HomePage({ content }: { content: HomePageContent }) {
         </div>
       </section>
 
+      <DemoSection
+        locale={content.locale}
+        content={content.demo}
+        trackingPath={ctaPath(content.locale, "embedded_demo")}
+        fullscreenTrackingPath={ctaPath(content.locale, "demo_fullscreen")}
+      />
+
       <section id="features" className="rounded-[2rem] border border-white/8 bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)] px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
         <SectionIntro
           eyebrow={content.positioning.eyebrow}
@@ -279,7 +287,7 @@ export function HomePage({ content }: { content: HomePageContent }) {
               <p className="mt-6 text-sm leading-7 text-stone-300/78">{card.highlight}</p>
 
               <TrackEventLink
-                href="https://app.bpmngen.com/signup"
+                href="https://app.bpmngen.com/register"
                 appendSessionIdToSignup
                 events={[
                   { eventName: "paid_clicked" },
