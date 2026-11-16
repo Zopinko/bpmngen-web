@@ -76,7 +76,7 @@ const COPY: Record<Locale, Copy> = {
           "Sign-in sessions: when the session was created and last used, IP address and browser user agent, to keep your account secure.",
           "Your content: processes, maps, notes, organizations and their members and invitations, and a log of recent changes in the organization.",
           "People in your processes: if you use the coverage overview, the names, numbers and positions of employees that you enter. Your organization decides what to enter; we process it only to provide the service.",
-          "Emails: to send account emails (address verification, password reset, invitations) we pass your email address to our email delivery provider.",
+          "Emails: to send account emails (address verification, password reset, invitations) we pass your email address to our email delivery provider (Websupport).",
         ],
       },
       {
@@ -90,7 +90,8 @@ const COPY: Record<Locale, Copy> = {
         id: "providers",
         title: "Where the data is kept",
         paragraphs: [
-          "The website and the app run on Render (cloud hosting), where the data is stored on persistent disks. Traffic to bpmngen.com passes through Cloudflare (network and security). Account emails go through an email delivery provider. These providers process the data only on our behalf. Where a provider is outside the EU, the transfer relies on the European Commission's standard contractual clauses.",
+          "This website (bpmngen.com) and the app's server (api.bpmngen.com), including their databases, run on Render (cloud hosting) in Frankfurt, Germany (EU). The app's user interface (app.bpmngen.com) is a static page delivered through Render's global content delivery network. Traffic to bpmngen.com passes through Cloudflare (network and security). Account emails are sent through Websupport (Slovakia).",
+          "These providers process the data only on our behalf. Render and Cloudflare are companies based in the USA; where data could be accessed from outside the EU, the transfer relies on the European Commission's standard contractual clauses.",
         ],
       },
       {
@@ -155,7 +156,7 @@ const COPY: Record<Locale, Copy> = {
           "Prihlásenia: kedy relácia vznikla a kedy bola naposledy použitá, IP adresa a user-agent prehliadača, kvôli bezpečnosti vášho účtu.",
           "Váš obsah: procesy, mapy, poznámky, organizácie, ich členovia a pozvánky a prehľad posledných zmien v organizácii.",
           "Ľudia vo vašich procesoch: ak používate prehľad zastupiteľnosti, mená, čísla a pozície zamestnancov, ktoré zadáte. O tom, čo zadáte, rozhoduje vaša organizácia; my ich spracúvame len na poskytovanie služby.",
-          "E-maily: na odosielanie e-mailov k účtu (overenie adresy, obnova hesla, pozvánky) odovzdávame vašu e-mailovú adresu poskytovateľovi doručovania e-mailov.",
+          "E-maily: na odosielanie e-mailov k účtu (overenie adresy, obnova hesla, pozvánky) odovzdávame vašu e-mailovú adresu poskytovateľovi doručovania e-mailov (Websupport).",
         ],
       },
       {
@@ -169,7 +170,8 @@ const COPY: Record<Locale, Copy> = {
         id: "providers",
         title: "Kde sú údaje uložené",
         paragraphs: [
-          "Web aj aplikácia bežia na platforme Render (cloudový hosting), kde sú údaje uložené na trvalých diskoch. Prevádzka na bpmngen.com prechádza cez Cloudflare (sieť a bezpečnosť). E-maily k účtu odchádzajú cez poskytovateľa doručovania e-mailov. Títo poskytovatelia spracúvajú údaje len v našom mene. Ak je poskytovateľ mimo EÚ, prenos sa opiera o štandardné zmluvné doložky Európskej komisie.",
+          "Tento web (bpmngen.com) a server aplikácie (api.bpmngen.com) vrátane ich databáz bežia na platforme Render (cloudový hosting) vo Frankfurte v Nemecku (EÚ). Používateľské rozhranie aplikácie (app.bpmngen.com) je statická stránka doručovaná cez globálnu sieť (CDN) Renderu. Prevádzka na bpmngen.com prechádza cez Cloudflare (sieť a bezpečnosť). E-maily k účtu odchádzajú cez Websupport (Slovensko).",
+          "Títo poskytovatelia spracúvajú údaje len v našom mene. Render a Cloudflare sú spoločnosti so sídlom v USA; ak by k údajom mohol byť prístup z krajín mimo EÚ, prenos sa opiera o štandardné zmluvné doložky Európskej komisie.",
         ],
       },
       {
