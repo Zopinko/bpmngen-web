@@ -48,6 +48,9 @@ export function SiteHeader({ locale, nav, altLocaleHref }: SiteHeaderProps) {
               {link.label}
             </TrackEventLink>
           ))}
+          <a href={locale === "sk" ? "/sk/contact" : "/contact"} className="btn btn-ghost btn-sm">
+            {nav.contact}
+          </a>
         </nav>
 
         <div className="flex items-center gap-1.5">

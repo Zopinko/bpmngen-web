@@ -3,14 +3,16 @@ import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { type AnalyticsEventName } from "@/lib/analytics-events";
 
-export const ANALYTICS_RETENTION_DAYS = 180;
+import { ANALYTICS_RETENTION_DAYS } from "@/lib/retention";
+
+export { ANALYTICS_RETENTION_DAYS };
 
 function resolveAnalyticsDbPath(): string {
   const configuredPath = process.env.ANALYTICS_DB_PATH?.trim();
   if (configuredPath) {
     return path.isAbsolute(configuredPath)
       ? configuredPath
-      : path.resolve(process.cwd(), configuredPath);
+      : path.resolve(/*turbopackIgnore: true*/ process.cwd(), configuredPath);
   }
 
   if (process.env.NODE_ENV !== "production") {
@@ -38,7 +40,7 @@ type AnalyticsDatabaseGlobal = typeof globalThis & {
   __analyticsRetentionCleanupDay?: string;
 };
 
-function formatUtcSqliteDate(date: Date): string {
+export function formatUtcSqliteDate(date: Date): string {
   const year = date.getUTCFullYear();
   const month = `${date.getUTCMonth() + 1}`.padStart(2, "0");
   const day = `${date.getUTCDate()}`.padStart(2, "0");
@@ -61,7 +63,7 @@ function maybeCleanupExpiredAnalyticsData(db: DatabaseSyncLike): void {
   globalForDb.__analyticsRetentionCleanupDay = cleanupDay;
 }
 
-function getDb(): DatabaseSyncLike {
+export function getDb(): DatabaseSyncLike {
   const globalForDb = globalThis as AnalyticsDatabaseGlobal;
   if (!globalForDb.__analyticsDb) {
     mkdirSync(dataDir, { recursive: true });

@@ -96,22 +96,40 @@ const DEV_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"];
 const APP_ORIGINS = ["https://app.bpmngen.com"];
 const DEV_APP_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"];
 
-function getAllowedOrigins(): Set<string> {
+/** Origins of this website itself (without the app). */
+function getSiteOrigins(): Set<string> {
   const configured = (process.env.ANALYTICS_ALLOWED_ORIGINS ?? "")
     .split(",")
     .map((value) => parseUrl(value.trim())?.origin)
     .filter((value): value is string => Boolean(value));
 
   const origins = new Set(configured.length > 0 ? configured : DEFAULT_ALLOWED_ORIGINS);
-  for (const origin of getAppOrigins()) {
-    origins.add(origin);
-  }
   if (process.env.NODE_ENV !== "production") {
     for (const origin of DEV_ALLOWED_ORIGINS) {
       origins.add(origin);
     }
   }
   return origins;
+}
+
+function getAllowedOrigins(): Set<string> {
+  const origins = getSiteOrigins();
+  for (const origin of getAppOrigins()) {
+    origins.add(origin);
+  }
+  return origins;
+}
+
+/** True only for requests sent by pages of this website (Origin, or failing that Referer). */
+export function isSameSiteRequest(request: Request): boolean {
+  const siteOrigins = getSiteOrigins();
+  const originHeader = request.headers.get("origin");
+  if (originHeader) {
+    const origin = parseUrl(originHeader);
+    return origin !== null && siteOrigins.has(origin.origin);
+  }
+  const referer = parseUrl(request.headers.get("referer"));
+  return referer !== null && siteOrigins.has(referer.origin);
 }
 
 function getAppOrigins(): string[] {

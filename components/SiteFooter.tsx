@@ -15,6 +15,7 @@ export function SiteFooter({ locale, nav, footer, altLocaleHref }: SiteFooterPro
     { href: `${home}#features`, label: nav.product },
     { href: `${home}#pricing`, label: nav.pricing },
     { href: `${home}#faq`, label: nav.faq },
+    { href: locale === "sk" ? "/sk/contact" : "/contact", label: nav.contact },
     { href: privacyHref, label: footer.privacy },
   ];
 

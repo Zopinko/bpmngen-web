@@ -11,6 +11,7 @@ export const homeContentEn: HomePageContent = {
     product: "Product",
     pricing: "Pricing",
     faq: "FAQ",
+    contact: "Contact",
     primaryCta: "Try the App",
     signIn: "Sign in",
     localeLabel: "EN",
@@ -86,6 +87,43 @@ export const homeContentEn: HomePageContent = {
       },
     ],
   },
+  features: {
+    eyebrow: "Product",
+    title: "What you get in the app",
+    text: "Everything is built around one idea: the person who does the work describes it, and the company keeps it.",
+    items: [
+      {
+        icon: "guide",
+        title: "Describe it in sentences",
+        text: "Write the steps the way you would explain them. \"If ...\" creates a decision, \"In parallel ...\" a parallel section. A guide takes you through it.",
+      },
+      {
+        icon: "map",
+        title: "A valid BPMN map",
+        text: "The engine builds the map with roles, decisions and end states. You can still adjust it directly on the canvas.",
+      },
+      {
+        icon: "story",
+        title: "Process story",
+        text: "The same process written out as readable text, for people who will never open a diagram.",
+      },
+      {
+        icon: "export",
+        title: "Export and import BPMN",
+        text: "Download a standard BPMN 2.0 file (.bpmn), or import one you already have and keep working on it.",
+      },
+      {
+        icon: "team",
+        title: "Team workspace",
+        text: "An organization with members, invitations, shared processes and a log of recent changes.",
+      },
+      {
+        icon: "coverage",
+        title: "Who can stand in",
+        text: "See who does each step, who can take over, and which steps depend on a single person.",
+      },
+    ],
+  },
   demo: {
     eyebrow: "Live demo",
     title: "Try it right here - no account needed",
@@ -154,6 +192,14 @@ export const homeContentEn: HomePageContent = {
       {
         q: "Who is this for?",
         a: "Teams where work depends on specific people, onboarding takes too long, and processes are inconsistent or unclear.",
+      },
+      {
+        q: "Can I take the map to other BPMN tools?",
+        a: "Yes. You can download a standard BPMN 2.0 file (.bpmn) that other BPMN tools can open. You can also import an existing .bpmn file and continue in BPMN.GEN.",
+      },
+      {
+        q: "Is what I write sent to an AI service?",
+        a: "No. Maps are built by our own rule-based engine, so your process descriptions are not sent to external AI services.",
       },
     ],
   },

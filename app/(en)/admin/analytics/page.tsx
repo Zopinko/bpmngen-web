@@ -259,7 +259,13 @@ export default async function AnalyticsAdminPage({
       <header className="rounded-3xl border border-zinc-200 bg-white px-6 py-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-950">Web analytics overview</h1>
+            <p className="text-xs font-medium text-zinc-500">
+              Analytics ·{" "}
+              <Link href="/admin/contact" className="underline-offset-2 hover:text-zinc-900 hover:underline">
+                Contact messages
+              </Link>
+            </p>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-950">Web analytics overview</h1>
             <p className="mt-1 max-w-3xl text-sm leading-6 text-zinc-600">
               Decision-oriented dashboard for traffic, acquisition, CTA performance, pricing interest, and tracked
               session flows.

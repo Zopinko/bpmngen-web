@@ -31,6 +31,11 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    // There are two root layouts (EN and SK, for the right <html lang>), so unmatched URLs
+    // need app/global-not-found.tsx for a styled 404.
+    globalNotFound: true,
+  },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

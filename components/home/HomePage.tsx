@@ -56,6 +56,32 @@ function CheckIcon() {
   );
 }
 
+const FEATURE_ICONS: Record<HomePageContent["features"]["items"][number]["icon"], React.ReactNode> = {
+  guide: <path d="M4 5h12M4 10h8M4 15h10" />,
+  map: (
+    <>
+      <rect x="2.5" y="4" width="6" height="4" rx="1" />
+      <rect x="11.5" y="12" width="6" height="4" rx="1" />
+      <path d="M8.5 6h3v6M11.5 14h-1" />
+    </>
+  ),
+  story: <path d="M5 3.5h7l3 3v10H5zM12 3.5v3h3M7.5 10h5M7.5 13h5" />,
+  export: <path d="M10 3v9M6.5 8.5 10 12l3.5-3.5M4 14v2.5h12V14" />,
+  team: (
+    <>
+      <circle cx="7.5" cy="7" r="2.5" />
+      <circle cx="13.5" cy="8" r="2" />
+      <path d="M3 16c.5-2.5 2.3-4 4.5-4s4 1.5 4.5 4M12 12.2c2 0 3.6 1.3 4 3.8" />
+    </>
+  ),
+  coverage: (
+    <>
+      <path d="M10 2.5 16 5v4.5c0 3.7-2.5 6.5-6 8-3.5-1.5-6-4.3-6-8V5z" />
+      <path d="m7.3 10 2 2 3.6-4" />
+    </>
+  ),
+};
+
 export function HomePage({ content }: { content: HomePageContent }) {
   const altLocaleHref = localePath(content.locale === "en" ? "sk" : "en");
   const demoHref = `https://app.bpmngen.com/demo?lang=${content.locale}`;
@@ -132,6 +158,32 @@ export function HomePage({ content }: { content: HomePageContent }) {
         />
 
         <Section id="features">
+          <SectionIntro eyebrow={content.features.eyebrow} title={content.features.title} text={content.features.text} />
+          <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+            {content.features.items.map((item) => (
+              <article key={item.title} className="bg-card p-6">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[7px] border border-line-strong bg-raised text-accent-text">
+                  <svg
+                    viewBox="0 0 20 20"
+                    className="h-[18px] w-[18px]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    {FEATURE_ICONS[item.icon]}
+                  </svg>
+                </span>
+                <h3 className="mt-4 text-[16px] font-semibold tracking-[-0.015em] text-fg">{item.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-6 text-fg-2">{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+
+        <Section>
           <SectionIntro
             eyebrow={content.positioning.eyebrow}
             title={content.positioning.title}
