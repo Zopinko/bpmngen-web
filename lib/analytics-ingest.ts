@@ -1,4 +1,5 @@
 import { type AnalyticsEventName, isAllowedAnalyticsEvent } from "@/lib/analytics-events";
+import { getClientIp } from "@/lib/client-ip";
 
 const MAX_PATH_LENGTH = 2048;
 const MAX_SESSION_ID_LENGTH = 128;
@@ -6,6 +7,8 @@ const MAX_REFERRER_LENGTH = 2048;
 const MAX_USER_AGENT_LENGTH = 512;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX_REQUESTS = 120;
+const RATE_LIMIT_MAX_GLOBAL_REQUESTS = 2_000;
+const GLOBAL_RATE_LIMIT_KEY = "__global__";
 
 type TrackPayload = {
   event_name?: unknown;
@@ -85,42 +88,41 @@ function parseUrl(value: string | null): URL | null {
   }
 }
 
-function buildForwardedOrigin(request: Request): string | null {
-  const forwardedHost = request.headers.get("x-forwarded-host")?.trim();
-  const host = forwardedHost || request.headers.get("host")?.trim();
-  if (!host) {
-    return null;
+const DEFAULT_ALLOWED_ORIGINS = ["https://bpmngen.com", "https://www.bpmngen.com"];
+const DEV_ALLOWED_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"];
+
+function getAllowedOrigins(): Set<string> {
+  const configured = (process.env.ANALYTICS_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((value) => parseUrl(value.trim())?.origin)
+    .filter((value): value is string => Boolean(value));
+
+  const origins = new Set(configured.length > 0 ? configured : DEFAULT_ALLOWED_ORIGINS);
+  if (process.env.NODE_ENV !== "production") {
+    for (const origin of DEV_ALLOWED_ORIGINS) {
+      origins.add(origin);
+    }
   }
-
-  const forwardedProto = request.headers.get("x-forwarded-proto")?.trim();
-  const protocol = forwardedProto || parseUrl(request.url)?.protocol.replace(":", "") || "https";
-
-  return `${protocol}://${host}`;
+  return origins;
 }
 
+/**
+ * Accepts only requests whose Origin (or, failing that, Referer) is one of our own
+ * site origins. Requests without either header are rejected. This keeps other
+ * websites from posting events through visitors' browsers; it cannot stop a
+ * scripted client that forges headers, which is what the rate limits are for.
+ */
 export function isTrustedAnalyticsRequest(request: Request): boolean {
-  const trustedOrigins = new Set<string>();
-  const requestUrl = parseUrl(request.url);
-  if (requestUrl) {
-    trustedOrigins.add(requestUrl.origin);
-  }
+  const allowedOrigins = getAllowedOrigins();
 
-  const forwardedOrigin = buildForwardedOrigin(request);
-  if (forwardedOrigin) {
-    trustedOrigins.add(forwardedOrigin);
-  }
-
-  const originHeader = parseUrl(request.headers.get("origin"));
+  const originHeader = request.headers.get("origin");
   if (originHeader) {
-    return trustedOrigins.has(originHeader.origin);
+    const origin = parseUrl(originHeader);
+    return origin !== null && allowedOrigins.has(origin.origin);
   }
 
-  const refererHeader = parseUrl(request.headers.get("referer"));
-  if (refererHeader) {
-    return trustedOrigins.has(refererHeader.origin);
-  }
-
-  return trustedOrigins.size > 0;
+  const referer = parseUrl(request.headers.get("referer"));
+  return referer !== null && allowedOrigins.has(referer.origin);
 }
 
 function getRateLimitStore(): Map<string, RateLimitRecord> {
@@ -139,21 +141,22 @@ function cleanupExpiredEntries(store: Map<string, RateLimitRecord>, now: number)
   }
 }
 
-function getClientIp(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    const first = forwardedFor.split(",")[0]?.trim();
-    if (first) {
-      return first;
-    }
+function consumeFromStore(
+  store: Map<string, RateLimitRecord>,
+  key: string,
+  limit: number,
+  now: number,
+): boolean {
+  const existing = store.get(key);
+  if (!existing || existing.expiresAt <= now) {
+    store.set(key, { count: 1, expiresAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
   }
-
-  const realIp = request.headers.get("x-real-ip")?.trim();
-  if (realIp) {
-    return realIp;
+  if (existing.count >= limit) {
+    return false;
   }
-
-  return "unknown";
+  existing.count += 1;
+  return true;
 }
 
 export function consumeAnalyticsRateLimit(request: Request): boolean {
@@ -161,24 +164,9 @@ export function consumeAnalyticsRateLimit(request: Request): boolean {
   const store = getRateLimitStore();
   cleanupExpiredEntries(store, now);
 
-  const key = getClientIp(request);
-  const existing = store.get(key);
-
-  if (!existing || existing.expiresAt <= now) {
-    store.set(key, {
-      count: 1,
-      expiresAt: now + RATE_LIMIT_WINDOW_MS,
-    });
-    return true;
-  }
-
-  if (existing.count >= RATE_LIMIT_MAX_REQUESTS) {
+  // Global ceiling first, so rotating IP addresses cannot flood the database.
+  if (!consumeFromStore(store, GLOBAL_RATE_LIMIT_KEY, RATE_LIMIT_MAX_GLOBAL_REQUESTS, now)) {
     return false;
   }
-
-  store.set(key, {
-    ...existing,
-    count: existing.count + 1,
-  });
-  return true;
+  return consumeFromStore(store, `ip:${getClientIp(request)}`, RATE_LIMIT_MAX_REQUESTS, now);
 }

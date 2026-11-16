@@ -44,6 +44,15 @@ export type HomePageContent = {
       text: string;
     }>;
   };
+  demo: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    frameTitle: string;
+    openFullscreen: string;
+    mobileNote: string;
+    mobileCta: string;
+  };
   howItWorks: {
     eyebrow: string;
     title: string;

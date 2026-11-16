@@ -75,6 +75,15 @@ export const homeContentSk: HomePageContent = {
       },
     ],
   },
+  demo: {
+    eyebrow: "Živé demo",
+    title: "Vyskúšajte si to priamo tu - bez registrácie",
+    text: "Opíšte krátky proces a sledujte, ako z neho vznikne BPMN mapa. Demo je obmedzené na 2 roly a nič z toho, čo napíšete, sa neukladá.",
+    frameTitle: "Interaktívne demo BPMN.GEN",
+    openFullscreen: "Otvoriť demo na celú obrazovku",
+    mobileNote: "Editor máp funguje najlepšie na väčšej obrazovke. Demo si otvorte v novej karte.",
+    mobileCta: "Otvoriť demo",
+  },
   howItWorks: {
     eyebrow: "Ako to funguje",
     title: "Od takto to robíme k procesu, ktorý tím vie používať",
