@@ -1,4 +1,4 @@
-﻿import { type HomePageContent } from "@/content/home/types";
+import { type HomePageContent } from "@/content/home/types";
 
 export const homeContentSk: HomePageContent = {
   locale: "sk",
@@ -11,7 +11,9 @@ export const homeContentSk: HomePageContent = {
     product: "Produkt",
     pricing: "Ceny",
     faq: "FAQ",
+    contact: "Kontakt",
     primaryCta: "Skúsiť aplikáciu",
+    signIn: "Prihlásiť sa",
     localeLabel: "SK",
   },
   hero: {
@@ -51,27 +53,74 @@ export const homeContentSk: HomePageContent = {
     outputLabel: "Výstup",
     outputText: "Prehľadná BPMN procesná mapa, ktorú tím vie reálne používať",
     outputBadge: "Hotovo",
+    diagram: {
+      laneA: "Žiadateľ",
+      laneB: "Schvaľovateľ",
+      submit: "Podať žiadosť",
+      review: "Posúdiť žiadosť",
+      approved: "Schválené?",
+      notify: "Oznámiť výsledok",
+      yes: "áno",
+      no: "nie",
+    },
   },
   positioning: {
-    eyebrow: "Positioning",
+    eyebrow: "Prečo BPMN.GEN",
     title: "Väčšina nástrojov začína diagramom. Vy by ste nemali.",
     text:
       "Väčšina nástrojov predpokladá, že procesy už máte spísané.\n\nBPMN.GEN začína tam, kde procesy naozaj existujú, v ľuďoch, a premieňa ich na niečo, čo firma vie používať.",
     cards: [
       {
-        eyebrow: "Core insight",
+        eyebrow: "Hlavná myšlienka",
         title: "Problém nie je kreslenie diagramov",
         text: "Procesy sú v hlavách ľudí, nie vo vašom systéme.",
       },
       {
-        eyebrow: "Access",
+        eyebrow: "Dostupnosť",
         title: "Proces vie opísať ktokoľvek",
         text: "Bez BPMN školení. Bez konzultantov. Stačí opísať, ako práca prebieha.",
       },
       {
-        eyebrow: "Organizational value",
+        eyebrow: "Hodnota pre firmu",
         title: "Procesy už nezmiznú",
         text: "Namiesto strateného know-how a starých PDF si firma buduje použiteľné procesy.",
+      },
+    ],
+  },
+  features: {
+    eyebrow: "Produkt",
+    title: "Čo v aplikácii dostanete",
+    text: "Všetko stojí na jednej myšlienke: prácu opíše človek, ktorý ju robí, a firma si ju ponechá.",
+    items: [
+      {
+        icon: "guide",
+        title: "Opíšete to vetami",
+        text: "Kroky napíšete tak, ako by ste ich vysvetľovali. „Ak ...“ vytvorí rozhodnutie, „Súčasne ...“ paralelnú časť. Celým postupom vás prevedie sprievodca.",
+      },
+      {
+        icon: "map",
+        title: "Platná BPMN mapa",
+        text: "Engine z toho postaví mapu s rolami, rozhodnutiami a koncami. Upraviť ju môžete aj priamo na plátne.",
+      },
+      {
+        icon: "story",
+        title: "Príbeh procesu",
+        text: "Ten istý proces vypísaný ako čitateľný text, pre ľudí, ktorí diagram nikdy neotvoria.",
+      },
+      {
+        icon: "export",
+        title: "Export a import BPMN",
+        text: "Stiahnete si štandardný súbor BPMN 2.0 (.bpmn), alebo nahráte existujúci a pokračujete v ňom.",
+      },
+      {
+        icon: "team",
+        title: "Priestor pre tím",
+        text: "Organizácia s členmi, pozvánkami, zdieľanými procesmi a prehľadom posledných zmien.",
+      },
+      {
+        icon: "coverage",
+        title: "Zastupiteľnosť",
+        text: "Vidíte, kto robí ktorý krok, kto ho vie zastúpiť a ktoré kroky stoja na jedinom človeku.",
       },
     ],
   },
@@ -143,6 +192,14 @@ export const homeContentSk: HomePageContent = {
       {
         q: "Pre koho je to určené?",
         a: "Pre tímy, kde:\n- práca závisí od konkrétnych ľudí\n- onboarding trvá príliš dlho\n- procesy sú nejednotné alebo nejasné",
+      },
+      {
+        q: "Viem mapu preniesť do iných BPMN nástrojov?",
+        a: "Áno. Stiahnete si štandardný súbor BPMN 2.0 (.bpmn), ktorý otvoria aj iné BPMN nástroje. Existujúci .bpmn súbor môžete aj nahrať a pokračovať v BPMN.GEN.",
+      },
+      {
+        q: "Posiela sa to, čo napíšem, do AI služby?",
+        a: "Nie. Mapy stavia náš vlastný engine založený na pravidlách, takže popisy vašich procesov sa neposielajú do externých AI služieb.",
       },
     ],
   },

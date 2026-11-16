@@ -1,6 +1,9 @@
 import { AnalyticsConsentBanner } from "@/components/AnalyticsConsentBanner";
 import { LandingPageViewTracker } from "@/components/LandingPageViewTracker";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
 import { TrackEventLink } from "@/components/TrackEventLink";
+import { AppPreview } from "@/components/home/AppPreview";
 import { DemoSection } from "@/components/home/DemoSection";
 import { type HomePageContent } from "@/content/home/types";
 
@@ -28,316 +31,307 @@ function SectionIntro({
   extra?: string;
 }) {
   return (
-    <div className="max-w-3xl space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/72">{eyebrow}</p>
-      <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-50 sm:text-4xl">{title}</h2>
-      <p className="max-w-2xl whitespace-pre-line text-sm leading-7 text-stone-300/78 sm:text-base">{text}</p>
-      {extra ? <p className="max-w-2xl text-sm font-medium text-amber-100/80 sm:text-base">{extra}</p> : null}
+    <div className="max-w-2xl space-y-3">
+      <p className="eyebrow">{eyebrow}</p>
+      <h2 className="text-[28px] font-semibold leading-[1.15] tracking-[-0.025em] text-fg sm:text-[34px]">{title}</h2>
+      <p className="whitespace-pre-line text-[15px] leading-7 text-fg-2">{text}</p>
+      {extra ? <p className="text-[15px] font-medium text-accent-text">{extra}</p> : null}
     </div>
   );
 }
 
+function Section({ id, children }: { id?: string; children: React.ReactNode }) {
+  return (
+    <section id={id} className="border-t border-line">
+      <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">{children}</div>
+    </section>
+  );
+}
+
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 16 16" className="mt-0.5 h-4 w-4 flex-none text-accent" fill="none" aria-hidden="true">
+      <path d="M3.5 8.5l3 3 6-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+const FEATURE_ICONS: Record<HomePageContent["features"]["items"][number]["icon"], React.ReactNode> = {
+  guide: <path d="M4 5h12M4 10h8M4 15h10" />,
+  map: (
+    <>
+      <rect x="2.5" y="4" width="6" height="4" rx="1" />
+      <rect x="11.5" y="12" width="6" height="4" rx="1" />
+      <path d="M8.5 6h3v6M11.5 14h-1" />
+    </>
+  ),
+  story: <path d="M5 3.5h7l3 3v10H5zM12 3.5v3h3M7.5 10h5M7.5 13h5" />,
+  export: <path d="M10 3v9M6.5 8.5 10 12l3.5-3.5M4 14v2.5h12V14" />,
+  team: (
+    <>
+      <circle cx="7.5" cy="7" r="2.5" />
+      <circle cx="13.5" cy="8" r="2" />
+      <path d="M3 16c.5-2.5 2.3-4 4.5-4s4 1.5 4.5 4M12 12.2c2 0 3.6 1.3 4 3.8" />
+    </>
+  ),
+  coverage: (
+    <>
+      <path d="M10 2.5 16 5v4.5c0 3.7-2.5 6.5-6 8-3.5-1.5-6-4.3-6-8V5z" />
+      <path d="m7.3 10 2 2 3.6-4" />
+    </>
+  ),
+};
+
 export function HomePage({ content }: { content: HomePageContent }) {
-  const altLocale = content.locale === "en" ? "sk" : "en";
-  const altLocaleHref = localePath(altLocale);
+  const altLocaleHref = localePath(content.locale === "en" ? "sk" : "en");
+  const demoHref = `https://app.bpmngen.com/demo?lang=${content.locale}`;
 
   return (
-    <div className="space-y-8 sm:space-y-10">
+    <>
       <LandingPageViewTracker />
       <AnalyticsConsentBanner locale={content.locale} />
+      <SiteHeader locale={content.locale} nav={content.nav} altLocaleHref={altLocaleHref} />
 
-      <section className="relative overflow-hidden rounded-[2rem] border border-white/8 bg-[radial-gradient(circle_at_top_left,_rgba(245,158,11,0.12),_transparent_22%),radial-gradient(circle_at_bottom_right,_rgba(217,119,6,0.10),_transparent_24%),linear-gradient(135deg,#09090b_0%,#111827_42%,#1c1917_100%)] px-6 py-8 shadow-[0_24px_90px_rgba(0,0,0,0.42)] sm:px-8 sm:py-10 lg:px-12 lg:py-14">
-        <div
-          aria-hidden="true"
-          className="absolute left-[8%] top-[12%] h-24 w-24 rounded-full bg-amber-400/14 blur-3xl sm:h-32 sm:w-32"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute bottom-[12%] right-[12%] h-32 w-32 rounded-full bg-orange-300/10 blur-3xl sm:h-40 sm:w-40"
-        />
-
-        <div className="relative mb-8 flex items-center justify-between gap-4 border-b border-white/8 pb-4">
-          <a href={localePath(content.locale)} className="text-sm font-semibold tracking-[-0.02em] text-stone-50">
-            BPMN.GEN
-          </a>
-
-          <div className="hidden items-center gap-6 text-sm text-stone-300 md:flex">
-            <a href="#features" className="transition hover:text-stone-50">{content.nav.product}</a>
-            <a href="#pricing" className="transition hover:text-stone-50">{content.nav.pricing}</a>
-            <a href="#faq" className="transition hover:text-stone-50">{content.nav.faq}</a>
-            <a
-              href={altLocaleHref}
-              className="rounded-full border border-white/10 bg-white/[0.05] px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-amber-100 transition hover:bg-white/[0.08]"
-            >
-              {altLocale.toUpperCase()}
-            </a>
-          </div>
-
-          <TrackEventLink
-            href={`https://app.bpmngen.com/demo?lang=${content.locale}`}
-            appendSessionIdToSignup
-            events={[
-              { eventName: "demo_opened" },
-              { eventName: "link_click", path: ctaPath(content.locale, "header_try_app") },
-            ]}
-            className="inline-flex items-center rounded-full border border-white/16 bg-white/[0.05] px-4 py-2 text-sm font-medium text-stone-50 transition hover:bg-white/[0.08]"
-          >
-            {content.nav.primaryCta}
-          </TrackEventLink>
-        </div>
-
-        <div className="relative grid gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(340px,0.95fr)] lg:items-center">
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100 shadow-sm backdrop-blur-sm">
-              <span className="h-2 w-2 rounded-full bg-amber-400" />
-              {content.hero.badge}
-            </div>
-
-            <div className="space-y-5">
-              <h1 className="max-w-5xl text-4xl font-semibold tracking-[-0.06em] text-stone-50 sm:text-5xl lg:text-6xl">
+      <main>
+        {/* hero */}
+        <section className="relative overflow-hidden">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-0 h-[520px] bg-[radial-gradient(ellipse_60%_55%_at_50%_0%,rgba(129,131,255,0.13),transparent_70%)]"
+          />
+          <div className="relative mx-auto w-full max-w-6xl px-4 pb-16 pt-14 sm:px-6 sm:pt-20 lg:px-8 lg:pb-20">
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border border-line-strong bg-card px-3 py-1 text-[12px] font-medium text-fg-2">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent" />
+                {content.hero.badge}
+              </span>
+              <h1 className="mt-6 text-[36px] font-semibold leading-[1.08] tracking-[-0.035em] text-fg sm:text-5xl lg:text-[56px]">
                 {content.hero.title}
               </h1>
-              <p className="max-w-3xl text-base leading-8 text-stone-300 sm:text-lg">{content.hero.subtitle}</p>
-              <p className="max-w-2xl text-sm font-medium tracking-[0.01em] text-amber-100/80 sm:text-base">
-                {content.hero.supportingLine}
-              </p>
-            </div>
+              <p className="mx-auto mt-5 max-w-2xl text-[16px] leading-7 text-fg-2 sm:text-[17px]">{content.hero.subtitle}</p>
+              <p className="mt-3 text-[15px] font-medium text-accent-text">{content.hero.supportingLine}</p>
 
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <TrackEventLink
-                href={`https://app.bpmngen.com/demo?lang=${content.locale}`}
-            appendSessionIdToSignup
-                events={[
-                  { eventName: "demo_opened" },
-                  { eventName: "link_click", path: ctaPath(content.locale, "hero_try_app") },
-                ]}
-                className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(180deg,#fbbf24_0%,#d97706_100%)] px-6 py-3 text-sm font-semibold text-stone-950 shadow-[0_14px_30px_rgba(217,119,6,0.24)] transition hover:brightness-110"
-              >
-                {content.hero.primaryCta}
-              </TrackEventLink>
-              <TrackEventLink
-                href="#pricing"
-                eventNames={["link_click"]}
-                path={ctaPath(content.locale, "hero_see_pricing")}
-                className="inline-flex items-center justify-center rounded-full border border-amber-200/18 bg-white/[0.05] px-6 py-3 text-sm font-semibold text-stone-100 transition hover:border-amber-200/38 hover:bg-white/[0.08]"
-              >
-                {content.hero.secondaryCta}
-              </TrackEventLink>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              {content.hero.proofPoints.map((item) => (
-                <div
-                  key={item}
-                  className="rounded-2xl border border-white/8 bg-black/18 px-4 py-4 text-sm leading-6 text-stone-200 shadow-[0_1px_0_rgba(255,255,255,0.04)_inset] backdrop-blur-sm"
+              <div className="mt-8 flex flex-col justify-center gap-2.5 sm:flex-row">
+                <TrackEventLink
+                  href={demoHref}
+                  appendSessionIdToSignup
+                  events={[
+                    { eventName: "demo_opened" },
+                    { eventName: "link_click", path: ctaPath(content.locale, "hero_try_app") },
+                  ]}
+                  className="btn btn-primary btn-lg"
                 >
+                  {content.hero.primaryCta}
+                  <span aria-hidden="true">→</span>
+                </TrackEventLink>
+                <TrackEventLink
+                  href="#pricing"
+                  eventNames={["link_click"]}
+                  path={ctaPath(content.locale, "hero_see_pricing")}
+                  className="btn btn-lg"
+                >
+                  {content.hero.secondaryCta}
+                </TrackEventLink>
+              </div>
+            </div>
+
+            <div className="mx-auto mt-14 max-w-5xl">
+              <AppPreview flow={content.flow} />
+            </div>
+
+            <ul className="mx-auto mt-10 grid max-w-5xl gap-3 sm:grid-cols-3">
+              {content.hero.proofPoints.map((item) => (
+                <li key={item} className="flex gap-2.5 text-[14px] leading-6 text-fg-2">
+                  <CheckIcon />
                   {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        <DemoSection
+          locale={content.locale}
+          content={content.demo}
+          trackingPath={ctaPath(content.locale, "embedded_demo")}
+          fullscreenTrackingPath={ctaPath(content.locale, "demo_fullscreen")}
+        />
+
+        <Section id="features">
+          <SectionIntro eyebrow={content.features.eyebrow} title={content.features.title} text={content.features.text} />
+          <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+            {content.features.items.map((item) => (
+              <article key={item.title} className="bg-card p-6">
+                <span className="flex h-8 w-8 items-center justify-center rounded-[7px] border border-line-strong bg-raised text-accent-text">
+                  <svg
+                    viewBox="0 0 20 20"
+                    className="h-[18px] w-[18px]"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    {FEATURE_ICONS[item.icon]}
+                  </svg>
+                </span>
+                <h3 className="mt-4 text-[16px] font-semibold tracking-[-0.015em] text-fg">{item.title}</h3>
+                <p className="mt-1.5 text-[14px] leading-6 text-fg-2">{item.text}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+
+        <Section>
+          <SectionIntro
+            eyebrow={content.positioning.eyebrow}
+            title={content.positioning.title}
+            text={content.positioning.text}
+          />
+          <div className="mt-10 grid gap-3 lg:grid-cols-3">
+            {content.positioning.cards.map((card) => (
+              <article key={card.title} className="rounded-xl border border-line bg-card p-6">
+                <p className="text-[12px] font-medium text-fg-3">{card.eyebrow}</p>
+                <h3 className="mt-3 text-[18px] font-semibold tracking-[-0.02em] text-fg">{card.title}</h3>
+                <p className="mt-2 text-[14px] leading-6 text-fg-2">{card.text}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+
+        <Section>
+          <SectionIntro
+            eyebrow={content.howItWorks.eyebrow}
+            title={content.howItWorks.title}
+            text={content.howItWorks.text}
+          />
+          <ol className="mt-10 grid gap-3 lg:grid-cols-3">
+            {content.flow.steps.map((step, index) => (
+              <li key={step.title} className="rounded-xl border border-line bg-card p-6">
+                <span className="flex h-7 w-7 items-center justify-center rounded-[7px] bg-accent/12 font-mono text-[13px] font-medium text-accent-text">
+                  {index + 1}
+                </span>
+                <h3 className="mt-4 text-[18px] font-semibold tracking-[-0.02em] text-fg">{step.title}</h3>
+                <p className="mt-2 text-[14px] leading-6 text-fg-2">{step.text}</p>
+              </li>
+            ))}
+          </ol>
+        </Section>
+
+        <Section id="pricing">
+          <SectionIntro
+            eyebrow={content.pricing.eyebrow}
+            title={content.pricing.title}
+            text={content.pricing.text}
+            extra={content.pricing.extra}
+          />
+          <div className="mt-10 grid gap-3 lg:grid-cols-3">
+            {content.pricing.cards.map((card) => (
+              <article
+                key={card.name}
+                className={`flex flex-col rounded-xl border p-6 ${
+                  card.featured ? "border-accent/45 bg-[linear-gradient(180deg,rgba(129,131,255,0.09),rgba(20,20,23,1)_60%)]" : "border-line bg-card"
+                }`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-[18px] font-semibold tracking-[-0.02em] text-fg">{card.name}</h3>
+                    <p className="mt-1 text-[13px] text-fg-3">{card.seats}</p>
+                  </div>
+                  {card.featured ? (
+                    <span className="rounded-md bg-accent/15 px-2 py-0.5 text-[12px] font-medium text-accent-text">
+                      {content.pricing.featuredLabel}
+                    </span>
+                  ) : null}
                 </div>
+
+                <div className="mt-7">
+                  <p className="text-[12px] font-medium text-fg-3">{content.pricing.openTestingLabel}</p>
+                  <p className="mt-1 text-[26px] font-semibold tracking-[-0.03em] text-fg">{content.pricing.freeDuringTesting}</p>
+                  <p className="mt-0.5 font-mono text-[13px] text-fg-3 line-through">{card.price}</p>
+                </div>
+                <p className="mt-5 flex-1 text-[14px] leading-6 text-fg-2">{card.highlight}</p>
+
+                <TrackEventLink
+                  href="https://app.bpmngen.com/register"
+                  appendSessionIdToSignup
+                  events={[
+                    { eventName: "paid_clicked" },
+                    { eventName: "signup_started", path: ctaPath(content.locale, `pricing_signup&plan=${card.name.toLowerCase()}`) },
+                    { eventName: "link_click", path: ctaPath(content.locale, `pricing_signup&plan=${card.name.toLowerCase()}`) },
+                  ]}
+                  className={`btn mt-7 w-full ${card.featured ? "btn-primary" : ""}`}
+                >
+                  {content.pricing.cta}
+                </TrackEventLink>
+                <p className="mt-3 text-center text-[12.5px] text-fg-3">{content.pricing.note}</p>
+              </article>
+            ))}
+          </div>
+        </Section>
+
+        <Section id="faq">
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <SectionIntro eyebrow={content.faq.eyebrow} title={content.faq.title} text={content.faq.text} />
+            <div className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-card">
+              {content.faq.items.map((item) => (
+                <details key={item.q} className="group">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-[14.5px] font-medium text-fg transition hover:bg-raised [&::-webkit-details-marker]:hidden">
+                    {item.q}
+                    <svg
+                      viewBox="0 0 16 16"
+                      className="h-4 w-4 flex-none text-fg-3 transition-transform group-open:rotate-45"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </summary>
+                  <p className="whitespace-pre-line px-5 pb-5 text-[14px] leading-6 text-fg-2">{item.a}</p>
+                </details>
               ))}
             </div>
           </div>
+        </Section>
 
-          <div className="relative">
-            <div className="rounded-[2rem] border border-amber-100/10 bg-[linear-gradient(180deg,rgba(17,24,39,0.98),rgba(28,25,23,0.94))] p-4 text-white shadow-[0_30px_70px_rgba(0,0,0,0.44)] sm:p-5">
-              <div className="flex items-center justify-between border-b border-white/8 pb-3">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-200/62">{content.flow.eyebrow}</p>
-                  <p className="mt-1 text-sm text-stone-400">{content.flow.subtitle}</p>
-                </div>
-                <div className="flex gap-2">
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
-                  <span className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-4">
-                <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <p className="text-xs uppercase tracking-[0.18em] text-amber-200/55">{content.flow.inputLabel}</p>
-                      <p className="text-sm leading-6 text-stone-200/86">{content.flow.inputText}</p>
-                    </div>
-                    <span className="rounded-full bg-amber-400/12 px-2.5 py-1 text-[11px] font-semibold text-amber-100">
-                      {content.flow.inputBadge}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid gap-3">
-                  {content.flow.steps.map((lane, index) => (
-                    <div
-                      key={lane.title}
-                      className="rounded-2xl border border-white/8 bg-[linear-gradient(135deg,rgba(245,158,11,0.12),rgba(255,255,255,0.02))] p-4"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.07] text-xs font-semibold text-amber-100">
-                          {index + 1}
-                        </div>
-                        <div>
-                          <p className="text-sm font-semibold text-stone-50">{lane.title}</p>
-                          <p className="mt-1 text-xs leading-5 text-stone-300/72">{lane.text}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="rounded-2xl border border-amber-200/12 bg-amber-400/[0.08] p-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.18em] text-amber-200/62">{content.flow.outputLabel}</p>
-                      <p className="mt-1 text-sm font-semibold text-stone-50">{content.flow.outputText}</p>
-                    </div>
-                    <div className="rounded-full bg-amber-300 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-950">
-                      {content.flow.outputBadge}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <DemoSection
-        locale={content.locale}
-        content={content.demo}
-        trackingPath={ctaPath(content.locale, "embedded_demo")}
-        fullscreenTrackingPath={ctaPath(content.locale, "demo_fullscreen")}
-      />
-
-      <section id="features" className="rounded-[2rem] border border-white/8 bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)] px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
-        <SectionIntro
-          eyebrow={content.positioning.eyebrow}
-          title={content.positioning.title}
-          text={content.positioning.text}
-        />
-
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {content.positioning.cards.map((column) => (
-            <article
-              key={column.title}
-              className="rounded-[1.75rem] border border-white/8 bg-[linear-gradient(180deg,rgba(255,255,255,0.04)_0%,rgba(255,255,255,0.02)_100%)] p-6 shadow-[0_10px_30px_rgba(0,0,0,0.18)]"
-            >
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/70">{column.eyebrow}</p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-stone-50">{column.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-stone-300/78">{column.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="rounded-[2rem] border border-amber-100/8 bg-[linear-gradient(180deg,#0c0a09_0%,#111827_100%)] px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
-        <SectionIntro
-          eyebrow={content.howItWorks.eyebrow}
-          title={content.howItWorks.title}
-          text={content.howItWorks.text}
-        />
-
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {content.flow.steps.map((lane, index) => (
-            <article
-              key={lane.title}
-              className="relative overflow-hidden rounded-[1.75rem] border border-white/8 bg-white/[0.03] p-6"
-            >
-              <div
-                aria-hidden="true"
-                className="absolute inset-x-0 top-0 h-1 bg-[linear-gradient(90deg,rgba(251,191,36,0.95),rgba(217,119,6,0.28))]"
-              />
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-200/68">Step {index + 1}</p>
-              <h3 className="mt-4 text-2xl font-semibold tracking-[-0.04em] text-stone-50">{lane.title}</h3>
-              <p className="mt-3 text-sm leading-7 text-stone-300/76">{lane.text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="pricing" className="rounded-[2rem] border border-white/8 bg-[linear-gradient(180deg,#111827_0%,#0c0a09_100%)] px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
-        <SectionIntro
-          eyebrow={content.pricing.eyebrow}
-          title={content.pricing.title}
-          text={content.pricing.text}
-          extra={content.pricing.extra}
-        />
-
-        <div className="mt-8 grid gap-4 lg:grid-cols-3">
-          {content.pricing.cards.map((card) => (
-            <article
-              key={card.name}
-              className={`rounded-[1.75rem] border p-6 ${
-                card.featured
-                  ? "border-amber-300/40 bg-[linear-gradient(180deg,rgba(251,191,36,0.12)_0%,rgba(120,53,15,0.18)_100%)] shadow-[0_20px_44px_rgba(217,119,6,0.18)]"
-                  : "border-white/8 bg-white/[0.03]"
-              }`}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h3 className="text-2xl font-semibold tracking-[-0.04em] text-stone-50">{card.name}</h3>
-                  <p className="mt-2 text-sm text-stone-400">{card.seats}</p>
-                </div>
-                {card.featured ? (
-                  <span className="rounded-full bg-amber-300 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-stone-950">
-                    {content.pricing.featuredLabel}
-                  </span>
-                ) : null}
-              </div>
-
-              <p className="mt-8 text-sm font-medium uppercase tracking-[0.16em] text-amber-200/70">{content.pricing.openTestingLabel}</p>
-              <p className="mt-2 text-3xl font-semibold tracking-[-0.05em] text-stone-50">{content.pricing.freeDuringTesting}</p>
-              <p className="mt-2 text-sm text-stone-500 line-through">{card.price}</p>
-              <p className="mt-6 text-sm leading-7 text-stone-300/78">{card.highlight}</p>
-
+        {/* closing call to action */}
+        <section className="border-t border-line">
+          <div className="mx-auto w-full max-w-6xl px-4 py-16 text-center sm:px-6 sm:py-20 lg:px-8">
+            <h2 className="mx-auto max-w-2xl text-[28px] font-semibold leading-[1.15] tracking-[-0.025em] text-fg sm:text-[34px]">
+              {content.hero.supportingLine}
+            </h2>
+            <p className="mt-3 text-[15px] text-fg-2">{content.pricing.extra}</p>
+            <div className="mt-8 flex flex-col justify-center gap-2.5 sm:flex-row">
+              <TrackEventLink
+                href={demoHref}
+                appendSessionIdToSignup
+                events={[
+                  { eventName: "demo_opened" },
+                  { eventName: "link_click", path: ctaPath(content.locale, "footer_try_app") },
+                ]}
+                className="btn btn-primary btn-lg"
+              >
+                {content.hero.primaryCta}
+                <span aria-hidden="true">→</span>
+              </TrackEventLink>
               <TrackEventLink
                 href="https://app.bpmngen.com/register"
                 appendSessionIdToSignup
                 events={[
-                  { eventName: "paid_clicked" },
-                  { eventName: "signup_started", path: ctaPath(content.locale, `pricing_signup&plan=${card.name.toLowerCase()}`) },
-                  { eventName: "link_click", path: ctaPath(content.locale, `pricing_signup&plan=${card.name.toLowerCase()}`) },
+                  { eventName: "signup_started", path: ctaPath(content.locale, "footer_signup") },
+                  { eventName: "link_click", path: ctaPath(content.locale, "footer_signup") },
                 ]}
-                className={`mt-8 inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition ${
-                  card.featured
-                    ? "bg-[linear-gradient(180deg,#fbbf24_0%,#d97706_100%)] text-stone-950 hover:brightness-110"
-                    : "border border-white/10 bg-white/[0.05] text-stone-50 hover:border-amber-200/30 hover:bg-white/[0.08]"
-                }`}
+                className="btn btn-lg"
               >
                 {content.pricing.cta}
               </TrackEventLink>
-              <p className="mt-3 text-center text-sm text-stone-400">{content.pricing.note}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="faq" className="rounded-[2rem] border border-white/8 bg-[linear-gradient(180deg,#0f172a_0%,#111827_100%)] px-6 py-8 sm:px-8 sm:py-10 lg:px-12">
-        <SectionIntro eyebrow={content.faq.eyebrow} title={content.faq.title} text={content.faq.text} />
-
-        <div className="mt-8 space-y-3">
-          {content.faq.items.map((item) => (
-            <details key={item.q} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] px-5 py-4">
-              <summary className="cursor-pointer list-none pr-6 text-sm font-semibold text-stone-50">
-                {item.q}
-              </summary>
-              <p className="mt-3 max-w-3xl whitespace-pre-line text-sm leading-7 text-stone-300/78">{item.a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      <footer className="rounded-[2rem] border border-white/8 bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)] px-6 py-6 sm:px-8 lg:px-12">
-        <div className="flex flex-col gap-4 text-xs text-stone-400 sm:flex-row sm:items-center sm:justify-between sm:text-sm">
-          <p>{content.footer.rights.replace("{year}", new Date().getFullYear().toString())}</p>
-          <div className="flex items-center gap-3">
-            <a href="#features" className="transition hover:text-stone-50">{content.nav.product}</a>
-            <a href="#pricing" className="transition hover:text-stone-50">{content.nav.pricing}</a>
-            <a href="#faq" className="transition hover:text-stone-50">{content.nav.faq}</a>
-            <a href={localePath(content.locale, "/privacy")} className="transition hover:text-stone-50">{content.footer.privacy}</a>
-            <a href={altLocaleHref} className="transition hover:text-stone-50">{altLocale.toUpperCase()}</a>
+            </div>
           </div>
-        </div>
-      </footer>
-    </div>
+        </section>
+      </main>
+
+      <SiteFooter locale={content.locale} nav={content.nav} footer={content.footer} altLocaleHref={altLocaleHref} />
+    </>
   );
 }
-

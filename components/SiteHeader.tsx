@@ -1,60 +1,82 @@
-import Link from "next/link";
 import { TrackEventLink } from "@/components/TrackEventLink";
+import { type HomePageContent } from "@/content/home/types";
 
-const navLinks = [
-  { href: "#features", label: "Product" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
-];
+const APP_ORIGIN = "https://app.bpmngen.com";
 
-export function SiteHeader() {
+type SiteHeaderProps = {
+  locale: HomePageContent["locale"];
+  nav: HomePageContent["nav"];
+  /** Same page in the other language. */
+  altLocaleHref: string;
+};
+
+function homeHref(locale: HomePageContent["locale"]) {
+  return locale === "sk" ? "/sk" : "/";
+}
+
+function ctaPath(locale: HomePageContent["locale"], cta: string) {
+  return `${homeHref(locale)}?cta=${cta}`;
+}
+
+/** Top bar modelled on the app's nav: 56px, hairline bottom border, brand mark, quiet links. */
+export function SiteHeader({ locale, nav, altLocaleHref }: SiteHeaderProps) {
+  const home = homeHref(locale);
+  const altLocale = locale === "en" ? "sk" : "en";
+  const sectionLinks = [
+    { id: "features", label: nav.product },
+    { id: "pricing", label: nav.pricing },
+    { id: "faq", label: nav.faq },
+  ];
+
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-black/40 backdrop-blur-md">
-      <div className="mx-auto w-full max-w-6xl px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-4">
-          <Link href="/" className="text-sm font-semibold tracking-[-0.02em] text-white">
-            BPMN.GEN
-          </Link>
+    <header className="sticky top-0 z-40 border-b border-line bg-app/85 backdrop-blur-md">
+      <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+        <a href={home} className="inline-flex items-center gap-2.5 text-[15px] font-semibold tracking-[-0.02em] text-fg">
+          <span className="brand-mark" aria-hidden="true" />
+          BPMN.Gen
+        </a>
 
-          <nav className="hidden items-center gap-6 text-sm text-white/75 md:flex">
-            {navLinks.map((link) => (
-              <TrackEventLink
-                key={link.href}
-                href={link.href}
-                eventNames={["link_click"]}
-                path={`/?cta=header_${link.label.toLowerCase()}`}
-                className="rounded-md px-2 py-1 transition hover:bg-white/10 hover:text-white"
-              >
-                {link.label}
-              </TrackEventLink>
-            ))}
-          </nav>
-
-          <TrackEventLink
-            href="https://app.bpmngen.com/demo"
-            events={[
-              { eventName: "demo_opened" },
-              { eventName: "link_click", path: "/?cta=header_try_app" },
-            ]}
-            className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15"
-          >
-            Try the App
-          </TrackEventLink>
-        </div>
-
-        <nav className="mt-3 flex items-center gap-2 border-t border-white/10 pt-3 text-sm text-white/75 md:hidden">
-          {navLinks.map((link) => (
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+          {sectionLinks.map((link) => (
             <TrackEventLink
-              key={link.href}
-              href={link.href}
+              key={link.id}
+              href={`${home}#${link.id}`}
               eventNames={["link_click"]}
-              path={`/?cta=header_mobile_${link.label.toLowerCase()}`}
-              className="rounded-md px-2 py-1 transition hover:bg-white/10 hover:text-white"
+              path={ctaPath(locale, `header_${link.id}`)}
+              className="btn btn-ghost btn-sm"
             >
               {link.label}
             </TrackEventLink>
           ))}
+          <a href={locale === "sk" ? "/sk/contact" : "/contact"} className="btn btn-ghost btn-sm">
+            {nav.contact}
+          </a>
         </nav>
+
+        <div className="flex items-center gap-1.5">
+          <a
+            href={altLocaleHref}
+            hrefLang={altLocale}
+            className="btn btn-ghost btn-sm font-mono text-[12px] uppercase"
+            aria-label={altLocale === "sk" ? "Slovensky" : "English"}
+          >
+            {altLocale}
+          </a>
+          <a href={`${APP_ORIGIN}/login`} className="btn btn-ghost btn-sm hidden sm:inline-flex">
+            {nav.signIn}
+          </a>
+          <TrackEventLink
+            href={`${APP_ORIGIN}/demo?lang=${locale}`}
+            appendSessionIdToSignup
+            events={[
+              { eventName: "demo_opened" },
+              { eventName: "link_click", path: ctaPath(locale, "header_try_app") },
+            ]}
+            className="btn btn-primary btn-sm"
+          >
+            {nav.primaryCta}
+          </TrackEventLink>
+        </div>
       </div>
     </header>
   );

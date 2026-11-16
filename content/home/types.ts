@@ -8,7 +8,9 @@ export type HomePageContent = {
     product: string;
     pricing: string;
     faq: string;
+    contact: string;
     primaryCta: string;
+    signIn: string;
     localeLabel: string;
   };
   hero: {
@@ -33,6 +35,16 @@ export type HomePageContent = {
     outputLabel: string;
     outputText: string;
     outputBadge: string;
+    diagram: {
+      laneA: string;
+      laneB: string;
+      submit: string;
+      review: string;
+      approved: string;
+      notify: string;
+      yes: string;
+      no: string;
+    };
   };
   positioning: {
     eyebrow: string;
@@ -40,6 +52,16 @@ export type HomePageContent = {
     text: string;
     cards: Array<{
       eyebrow: string;
+      title: string;
+      text: string;
+    }>;
+  };
+  features: {
+    eyebrow: string;
+    title: string;
+    text: string;
+    items: Array<{
+      icon: "guide" | "map" | "story" | "export" | "team" | "coverage";
       title: string;
       text: string;
     }>;

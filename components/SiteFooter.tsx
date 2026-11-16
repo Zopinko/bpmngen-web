@@ -1,36 +1,41 @@
-import { TrackEventLink } from "@/components/TrackEventLink";
+import { type HomePageContent } from "@/content/home/types";
 
-export function SiteFooter() {
+type SiteFooterProps = {
+  locale: HomePageContent["locale"];
+  nav: HomePageContent["nav"];
+  footer: HomePageContent["footer"];
+  altLocaleHref: string;
+};
+
+export function SiteFooter({ locale, nav, footer, altLocaleHref }: SiteFooterProps) {
+  const home = locale === "sk" ? "/sk" : "/";
+  const privacyHref = locale === "sk" ? "/sk/privacy" : "/privacy";
+  const altLocale = locale === "en" ? "sk" : "en";
+  const links = [
+    { href: `${home}#features`, label: nav.product },
+    { href: `${home}#pricing`, label: nav.pricing },
+    { href: `${home}#faq`, label: nav.faq },
+    { href: locale === "sk" ? "/sk/contact" : "/contact", label: nav.contact },
+    { href: privacyHref, label: footer.privacy },
+  ];
+
   return (
-    <footer className="border-t border-zinc-200/70 bg-white/70 backdrop-blur-sm">
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 text-xs text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:text-sm lg:px-8">
-        <p>(c) {new Date().getFullYear()} BPMN.GEN. All rights reserved.</p>
-        <div className="flex items-center gap-2 sm:gap-3">
-          <TrackEventLink
-            href="#features"
-            eventNames={["link_click"]}
-            path="/?cta=footer_product"
-            className="rounded-md px-2 py-1 transition hover:bg-zinc-100/80 hover:text-zinc-900"
-          >
-            Product
-          </TrackEventLink>
-          <TrackEventLink
-            href="#pricing"
-            eventNames={["link_click"]}
-            path="/?cta=footer_pricing"
-            className="rounded-md px-2 py-1 transition hover:bg-zinc-100/80 hover:text-zinc-900"
-          >
-            Pricing
-          </TrackEventLink>
-          <TrackEventLink
-            href="#faq"
-            eventNames={["link_click"]}
-            path="/?cta=footer_faq"
-            className="rounded-md px-2 py-1 transition hover:bg-zinc-100/80 hover:text-zinc-900"
-          >
-            FAQ
-          </TrackEventLink>
+    <footer className="border-t border-line">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 pb-20 pt-8 text-[13px] text-fg-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+        <div className="flex items-center gap-2.5">
+          <span className="brand-mark" aria-hidden="true" />
+          <span>{footer.rights.replace("{year}", new Date().getFullYear().toString())}</span>
         </div>
+        <nav className="flex flex-wrap items-center gap-x-5 gap-y-2" aria-label="Footer">
+          {links.map((link) => (
+            <a key={link.href} href={link.href} className="transition hover:text-fg">
+              {link.label}
+            </a>
+          ))}
+          <a href={altLocaleHref} hrefLang={altLocale} className="font-mono uppercase transition hover:text-fg">
+            {altLocale}
+          </a>
+        </nav>
       </div>
     </footer>
   );
