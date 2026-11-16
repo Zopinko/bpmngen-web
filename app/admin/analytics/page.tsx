@@ -253,6 +253,8 @@ export default async function AnalyticsAdminPage({
   ];
 
   return (
+    <div className="min-h-screen bg-zinc-50 text-zinc-900">
+    <main className="mx-auto w-full max-w-6xl px-4 pb-10 sm:px-6 sm:pb-12 lg:px-8 lg:pb-16">
     <section className="space-y-6 pt-10 sm:pt-12 lg:pt-16">
       <header className="rounded-3xl border border-zinc-200 bg-white px-6 py-5 shadow-sm">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
@@ -362,5 +364,7 @@ export default async function AnalyticsAdminPage({
 
       <FlowTable rows={data.recentFlows} />
     </section>
+    </main>
+    </div>
   );
 }

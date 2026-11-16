@@ -9,6 +9,7 @@ export type HomePageContent = {
     pricing: string;
     faq: string;
     primaryCta: string;
+    signIn: string;
     localeLabel: string;
   };
   hero: {
@@ -33,6 +34,16 @@ export type HomePageContent = {
     outputLabel: string;
     outputText: string;
     outputBadge: string;
+    diagram: {
+      laneA: string;
+      laneB: string;
+      submit: string;
+      review: string;
+      approved: string;
+      notify: string;
+      yes: string;
+      no: string;
+    };
   };
   positioning: {
     eyebrow: string;

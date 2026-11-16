@@ -9,7 +9,6 @@ import {
 
 type AnalyticsConsentControlsProps = {
   locale: "en" | "sk";
-  tone?: "dark" | "light";
 };
 
 function subscribeNoop(): () => void {
@@ -28,20 +27,19 @@ const COPY = {
     reject: "Reject analytics",
   },
   sk: {
-    title: "Suhlas s analytikou",
-    unknown: "Zatial nerozhodnute",
-    granted: "Povolene",
-    denied: "Odmietnute",
+    title: "Súhlas s analytikou",
+    unknown: "Zatiaľ nerozhodnuté",
+    granted: "Povolené",
+    denied: "Odmietnuté",
     description:
-      "First-party analytiku mozete kedykolvek povolit alebo odmietnut. Pri odmietnuti sa odstrani aj ulozeny identifikator relacie v prehliadaci.",
-    accept: "Povolit analytiku",
-    reject: "Odmietnut analytiku",
+      "Vlastnú analytiku môžete kedykoľvek povoliť alebo odmietnuť. Pri odmietnutí sa odstráni aj uložený identifikátor relácie v prehliadači.",
+    accept: "Povoliť analytiku",
+    reject: "Odmietnuť analytiku",
   },
 } as const;
 
 export function AnalyticsConsentControls({
   locale,
-  tone = "dark",
 }: AnalyticsConsentControlsProps) {
   const isMounted = useSyncExternalStore(subscribeNoop, () => true, () => false);
   const consentState = useSyncExternalStore(
@@ -58,32 +56,22 @@ export function AnalyticsConsentControls({
         ? copy.denied
         : copy.unknown;
 
-  const isLight = tone === "light";
-  const badgeClasses = isLight
-    ? "bg-zinc-100 text-zinc-700 border border-zinc-200"
-    : "bg-white/[0.06] text-stone-200 border border-white/10";
-  const secondaryButtonClasses = isLight
-    ? "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-100"
-    : "border border-white/12 bg-white/[0.05] text-stone-100 hover:bg-white/[0.08]";
-  const descriptionClasses = isLight ? "text-zinc-600" : "text-stone-300";
-  const titleClasses = isLight ? "text-zinc-950" : "text-stone-50";
-
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-2">
-        <p className={`text-sm font-semibold ${titleClasses}`}>{copy.title}</p>
-        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeClasses}`}>
+        <p className="text-[13.5px] font-semibold text-fg">{copy.title}</p>
+        <span className="rounded-md border border-line-strong bg-raised px-2 py-0.5 text-[12px] font-medium text-fg-2">
           {consentLabel}
         </span>
       </div>
-      <p className={`text-sm leading-6 ${descriptionClasses}`}>{copy.description}</p>
+      <p className="text-[13.5px] leading-6 text-fg-2">{copy.description}</p>
       <div className="flex flex-col gap-2 sm:flex-row">
         <button
           type="button"
           onClick={() => {
             setAnalyticsConsentState("granted");
           }}
-          className="inline-flex items-center justify-center rounded-full bg-[linear-gradient(180deg,#fbbf24_0%,#d97706_100%)] px-4 py-2.5 text-sm font-semibold text-stone-950 transition hover:brightness-110"
+          className="btn btn-primary"
         >
           {copy.accept}
         </button>
@@ -92,7 +80,7 @@ export function AnalyticsConsentControls({
           onClick={() => {
             setAnalyticsConsentState("denied");
           }}
-          className={`inline-flex items-center justify-center rounded-full px-4 py-2.5 text-sm font-semibold transition ${secondaryButtonClasses}`}
+          className="btn"
         >
           {copy.reject}
         </button>

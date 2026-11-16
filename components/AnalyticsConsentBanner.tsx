@@ -24,11 +24,11 @@ const COPY = {
   },
   sk: {
     message:
-      "Pouzivame jednoduchu analytiku na zistenie, ktore stranky a vyzvy funguju. Data ostavaju v nasom systeme a analytika je vypnuta, kym ju nepovolite.",
-    privacy: "Sukromie",
-    settings: "Nastavenie sukromia",
-    close: "Zavriet",
-    panelText: "Tu mozete kedykolvek zmenit alebo odvolat svoj suhlas s analytikou.",
+      "Používame jednoduchú analytiku, aby sme vedeli, ktoré stránky a výzvy fungujú. Dáta ostávajú v našom systéme a analytika je vypnutá, kým ju nepovolíte.",
+    privacy: "Súkromie",
+    settings: "Nastavenie súkromia",
+    close: "Zavrieť",
+    panelText: "Tu môžete kedykoľvek zmeniť alebo odvolať svoj súhlas s analytikou.",
   },
 } as const;
 
@@ -52,17 +52,15 @@ export function AnalyticsConsentBanner({ locale }: AnalyticsConsentBannerProps) 
     <>
       {resolvedConsentState === "unknown" ? (
         <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 sm:px-6 sm:pb-6">
-          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 rounded-[1.75rem] border border-white/10 bg-[linear-gradient(180deg,rgba(9,9,11,0.96),rgba(24,24,27,0.96))] p-4 text-stone-100 shadow-[0_24px_60px_rgba(0,0,0,0.42)] backdrop-blur-xl sm:flex-row sm:items-end sm:justify-between sm:p-5">
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 rounded-xl border border-line-strong bg-panel/95 p-4 text-fg shadow-[0_12px_32px_rgba(0,0,0,0.55)] backdrop-blur-xl sm:flex-row sm:items-end sm:justify-between sm:p-5">
             <div className="max-w-3xl space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-200/72">
-                {copy.settings}
-              </p>
-              <p className="text-sm leading-6 text-stone-300">{copy.message}</p>
+              <p className="eyebrow">{copy.settings}</p>
+              <p className="text-[13.5px] leading-6 text-fg-2">{copy.message}</p>
             </div>
 
             <div className="flex flex-col gap-2 sm:min-w-[18rem]">
               <AnalyticsConsentControls locale={locale} />
-              <Link href={getPrivacyHref(locale)} className="text-center text-xs text-stone-400 transition hover:text-stone-200">
+              <Link href={getPrivacyHref(locale)} className="text-center text-[12px] text-fg-3 transition hover:text-fg">
                 {copy.privacy}
               </Link>
             </div>
@@ -76,7 +74,7 @@ export function AnalyticsConsentBanner({ locale }: AnalyticsConsentBannerProps) 
           onClick={() => {
             setSettingsOpen((current) => !current);
           }}
-          className="inline-flex items-center rounded-full border border-zinc-200 bg-white/95 px-4 py-2 text-sm font-semibold text-zinc-900 shadow-[0_12px_32px_rgba(0,0,0,0.14)] backdrop-blur transition hover:bg-white"
+          className="btn btn-sm shadow-[0_8px_24px_rgba(0,0,0,0.45)]"
         >
           {copy.settings}
         </button>
@@ -84,26 +82,26 @@ export function AnalyticsConsentBanner({ locale }: AnalyticsConsentBannerProps) 
 
       {settingsOpen ? (
         <div className="fixed bottom-20 left-4 z-50 w-[min(28rem,calc(100vw-2rem))] sm:bottom-24 sm:left-6">
-          <div className="rounded-[1.5rem] border border-zinc-200 bg-white p-4 shadow-[0_24px_60px_rgba(0,0,0,0.24)]">
+          <div className="rounded-xl border border-line-strong bg-panel p-4 shadow-[0_12px_32px_rgba(0,0,0,0.55)]">
             <div className="mb-3 flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-zinc-950">{copy.settings}</p>
-                <p className="mt-1 text-xs leading-5 text-zinc-600">{copy.panelText}</p>
+                <p className="text-[13.5px] font-semibold text-fg">{copy.settings}</p>
+                <p className="mt-1 text-[12.5px] leading-5 text-fg-3">{copy.panelText}</p>
               </div>
               <button
                 type="button"
                 onClick={() => {
                   setSettingsOpen(false);
                 }}
-                className="rounded-full border border-zinc-200 px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-100"
+                className="btn btn-sm"
               >
                 {copy.close}
               </button>
             </div>
 
-            <AnalyticsConsentControls locale={locale} tone="light" />
+            <AnalyticsConsentControls locale={locale} />
             <div className="mt-3">
-              <Link href={getPrivacyHref(locale)} className="text-xs text-zinc-600 transition hover:text-zinc-900">
+              <Link href={getPrivacyHref(locale)} className="text-[12px] text-fg-3 transition hover:text-fg">
                 {copy.privacy}
               </Link>
             </div>

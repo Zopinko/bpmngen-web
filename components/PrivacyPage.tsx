@@ -1,4 +1,8 @@
 import { AnalyticsConsentControls } from "@/components/AnalyticsConsentControls";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import { homeContentEn } from "@/content/home/en";
+import { homeContentSk } from "@/content/home/sk";
 import { ANALYTICS_RETENTION_DAYS } from "@/lib/analytics-db";
 
 type PrivacyPageProps = {
@@ -36,33 +40,33 @@ const COPY = {
     back: "Back to homepage",
   },
   sk: {
-    eyebrow: "Sukromie",
-    title: "Ako BPMN.GEN pouziva analytiku na tomto webe",
+    eyebrow: "Súkromie",
+    title: "Ako BPMN.GEN používa analytiku na tomto webe",
     intro:
-      "Tento web pouziva iba first-party analytiku a to az po vasom vyslovnom suhlase v consent liste.",
+      "Tento web používa iba vlastnú (first-party) analytiku, a to až po vašom výslovnom súhlase v lište o súhlase.",
     sections: [
       {
-        title: "Co ukladame",
+        title: "Čo ukladáme",
         body:
-          "Ak povolite analytiku, v localStorage prehliadaca vytvorime nahodny identifikator relacie. Pouzivame ho na zakladne pochopenie opakovanych navstev a pohybu po bpmngen.com.",
+          "Ak povolíte analytiku, v localStorage prehliadača vytvoríme náhodný identifikátor relácie. Používame ho na základné pochopenie opakovaných návštev a pohybu po bpmngen.com.",
       },
       {
-        title: "Co zbierame",
+        title: "Čo zbierame",
         body:
-          "Zaznamenavame zobrazenia stranok, kliky na CTA, navstivenu cestu, referrer, user-agent prehliadaca a vytvoreny identifikator relacie. Na tomto webe nenacitavame Google Analytics, Meta Pixel ani ine reklamne trackery tretich stran.",
+          "Zaznamenávame zobrazenia stránok, kliky na výzvy (CTA), navštívenú cestu, referrer, user-agent prehliadača a vytvorený identifikátor relácie. Na tomto webe nenačítavame Google Analytics, Meta Pixel ani iné reklamné trackery tretích strán.",
       },
       {
-        title: "Kedy analytika bezi",
+        title: "Kedy analytika beží",
         body:
-          "Analytika je vypnuta, kym nekliknete na Povolit analytiku. Ak analytiku odmietnete, ziadne analyticke eventy sa neposielaju a lokalny identifikator relacie sa odstrani.",
+          "Analytika je vypnutá, kým nekliknete na Povoliť analytiku. Ak analytiku odmietnete, žiadne analytické udalosti sa neposielajú a lokálny identifikátor relácie sa odstráni.",
       },
       {
-        title: "Ako dlho data drzime",
-        body: `Analytics eventy sa automaticky mazu po ${ANALYTICS_RETENTION_DAYS} dnoch.`,
+        title: "Ako dlho dáta držíme",
+        body: `Analytické udalosti sa automaticky mažú po ${ANALYTICS_RETENTION_DAYS} dňoch.`,
       },
     ],
-    controlsTitle: "Ovladanie sukromia",
-    back: "Spat na homepage",
+    controlsTitle: "Ovládanie súkromia",
+    back: "Späť na hlavnú stránku",
   },
 } as const;
 
@@ -72,44 +76,39 @@ function homeHref(locale: "en" | "sk"): string {
 
 export function PrivacyPage({ locale }: PrivacyPageProps) {
   const copy = COPY[locale];
+  const home = locale === "sk" ? homeContentSk : homeContentEn;
+  const altLocaleHref = locale === "sk" ? "/privacy" : "/sk/privacy";
 
   return (
-    <div className="space-y-8 py-6 sm:space-y-10 sm:py-8">
-      <section className="rounded-[2rem] border border-white/8 bg-[linear-gradient(135deg,#09090b_0%,#111827_42%,#1c1917_100%)] px-6 py-8 shadow-[0_24px_90px_rgba(0,0,0,0.42)] sm:px-8 sm:py-10 lg:px-12">
-        <p className="text-xs font-semibold uppercase tracking-[0.22em] text-amber-300/72">{copy.eyebrow}</p>
-        <h1 className="mt-4 max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-stone-50 sm:text-5xl">
-          {copy.title}
-        </h1>
-        <p className="mt-5 max-w-3xl text-base leading-8 text-stone-300 sm:text-lg">{copy.intro}</p>
-      </section>
+    <>
+      <SiteHeader locale={locale} nav={home.nav} altLocaleHref={altLocaleHref} />
+      <main className="mx-auto w-full max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
+        <p className="eyebrow">{copy.eyebrow}</p>
+        <h1 className="mt-3 text-[32px] font-semibold leading-[1.12] tracking-[-0.03em] text-fg sm:text-[40px]">{copy.title}</h1>
+        <p className="mt-4 text-[16px] leading-7 text-fg-2">{copy.intro}</p>
 
-      <section className="grid gap-4">
-        <article className="rounded-[1.75rem] border border-white/8 bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)] px-6 py-6 sm:px-8">
-          <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-50">{copy.controlsTitle}</h2>
+        <article className="mt-10 rounded-xl border border-line-strong bg-panel p-6">
+          <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-fg">{copy.controlsTitle}</h2>
           <div className="mt-4">
             <AnalyticsConsentControls locale={locale} />
           </div>
         </article>
 
-        {copy.sections.map((section) => (
-          <article
-            key={section.title}
-            className="rounded-[1.75rem] border border-white/8 bg-[linear-gradient(180deg,#111827_0%,#0f172a_100%)] px-6 py-6 sm:px-8"
-          >
-            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-50">{section.title}</h2>
-            <p className="mt-3 max-w-3xl text-sm leading-7 text-stone-300/80 sm:text-base">{section.body}</p>
-          </article>
-        ))}
-      </section>
+        <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-card">
+          {copy.sections.map((section) => (
+            <section key={section.title} className="p-6">
+              <h2 className="text-[17px] font-semibold tracking-[-0.02em] text-fg">{section.title}</h2>
+              <p className="mt-2 text-[14.5px] leading-7 text-fg-2">{section.body}</p>
+            </section>
+          ))}
+        </div>
 
-      <div className="pb-4">
-        <a
-          href={homeHref(locale)}
-          className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-sm font-semibold text-stone-100 transition hover:bg-white/[0.08]"
-        >
+        <a href={homeHref(locale)} className="btn mt-10">
+          <span aria-hidden="true">←</span>
           {copy.back}
         </a>
-      </div>
-    </div>
+      </main>
+      <SiteFooter locale={locale} nav={home.nav} footer={home.footer} altLocaleHref={altLocaleHref} />
+    </>
   );
 }

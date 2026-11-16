@@ -12,6 +12,7 @@ export const homeContentEn: HomePageContent = {
     pricing: "Pricing",
     faq: "FAQ",
     primaryCta: "Try the App",
+    signIn: "Sign in",
     localeLabel: "EN",
   },
   hero: {
@@ -51,9 +52,19 @@ export const homeContentEn: HomePageContent = {
     outputLabel: "Output",
     outputText: "A clear, BPMN-based process your team can actually use",
     outputBadge: "Ready",
+    diagram: {
+      laneA: "Requester",
+      laneB: "Approver",
+      submit: "Submit request",
+      review: "Review request",
+      approved: "Approved?",
+      notify: "Notify requester",
+      yes: "yes",
+      no: "no",
+    },
   },
   positioning: {
-    eyebrow: "Positioning",
+    eyebrow: "Why BPMN.GEN",
     title: "Most process tools start with diagrams. Yours should not.",
     text:
       "Most tools assume your processes are already written down.\n\nThey are not.\n\nBPMN.GEN starts where the knowledge actually is, in people, and turns it into something your company can use.",

@@ -1,4 +1,4 @@
-﻿import { type HomePageContent } from "@/content/home/types";
+import { type HomePageContent } from "@/content/home/types";
 
 export const homeContentSk: HomePageContent = {
   locale: "sk",
@@ -12,6 +12,7 @@ export const homeContentSk: HomePageContent = {
     pricing: "Ceny",
     faq: "FAQ",
     primaryCta: "Skúsiť aplikáciu",
+    signIn: "Prihlásiť sa",
     localeLabel: "SK",
   },
   hero: {
@@ -51,25 +52,35 @@ export const homeContentSk: HomePageContent = {
     outputLabel: "Výstup",
     outputText: "Prehľadná BPMN procesná mapa, ktorú tím vie reálne používať",
     outputBadge: "Hotovo",
+    diagram: {
+      laneA: "Žiadateľ",
+      laneB: "Schvaľovateľ",
+      submit: "Podať žiadosť",
+      review: "Posúdiť žiadosť",
+      approved: "Schválené?",
+      notify: "Oznámiť výsledok",
+      yes: "áno",
+      no: "nie",
+    },
   },
   positioning: {
-    eyebrow: "Positioning",
+    eyebrow: "Prečo BPMN.GEN",
     title: "Väčšina nástrojov začína diagramom. Vy by ste nemali.",
     text:
       "Väčšina nástrojov predpokladá, že procesy už máte spísané.\n\nBPMN.GEN začína tam, kde procesy naozaj existujú, v ľuďoch, a premieňa ich na niečo, čo firma vie používať.",
     cards: [
       {
-        eyebrow: "Core insight",
+        eyebrow: "Hlavná myšlienka",
         title: "Problém nie je kreslenie diagramov",
         text: "Procesy sú v hlavách ľudí, nie vo vašom systéme.",
       },
       {
-        eyebrow: "Access",
+        eyebrow: "Dostupnosť",
         title: "Proces vie opísať ktokoľvek",
         text: "Bez BPMN školení. Bez konzultantov. Stačí opísať, ako práca prebieha.",
       },
       {
-        eyebrow: "Organizational value",
+        eyebrow: "Hodnota pre firmu",
         title: "Procesy už nezmiznú",
         text: "Namiesto strateného know-how a starých PDF si firma buduje použiteľné procesy.",
       },
